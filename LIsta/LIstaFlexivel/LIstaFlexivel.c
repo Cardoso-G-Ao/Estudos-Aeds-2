@@ -8,7 +8,6 @@ int main(){
     int *vetor = NULL;
     int valor;
     int cont = 0;
-
     while(scanf("%d",&valor) == 1){
         cont++;
         int *temp = (int*)realloc(vetor,cont * sizeof(int));
