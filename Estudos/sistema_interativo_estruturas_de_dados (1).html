@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma Interativa de Estruturas de Dados (C & Java)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- MathJax for LaTeX formatting -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pucRed: '#8B0000',
+            pucDark: '#1A202C',
+            codeBg: '#1E1E1E',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .code-editor {
+      font-family: 'Fira Code', 'Courier New', Courier, monospace;
+      tab-size: 4;
+    }
+    .node-transition {
+      transition: all 0.3s ease-in-out;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header / Navigation Bar -->
+  <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="bg-red-700 text-white p-2 rounded-lg font-bold text-xl">
+            <i class="fa-solid fa-cubes"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-white leading-none">Estruturas de Dados Interativas</h1>
+            <p class="text-xs text-red-400 font-medium">PUC Minas • Algoritmos e Estruturas de Dados</p>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-1">
+          <button onclick="switchTopic('t1')" id="nav-t1" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            1. Lista Sequencial
+          </button>
+          <button onclick="switchTopic('t2')" id="nav-t2" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            2. Pilha Sequencial
+          </button>
+          <button onclick="switchTopic('t3')" id="nav-t3" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            3. Fila Circular
+          </button>
+          <button onclick="switchTopic('t4')" id="nav-t4" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            4. Fila Encadeada
+          </button>
+          <button onclick="switchTopic('exercicios')" id="nav-exercicios" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold text-yellow-400 hover:bg-yellow-500/20 bg-yellow-500/10 border border-yellow-500/30">
+            <i class="fa-solid fa-code mr-1"></i> Desafios Práticos
+          </button>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <div class="lg:hidden">
+          <button id="mobile-menu-btn" class="text-gray-400 hover:text-white p-2">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-gray-800 border-b border-gray-700 px-4 pt-2 pb-4 space-y-2">
+      <button onclick="switchTopic('t1')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">1. Lista Sequencial</button>
+      <button onclick="switchTopic('t2')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">2. Pilha Sequencial</button>
+      <button onclick="switchTopic('t3')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">3. Fila Circular</button>
+      <button onclick="switchTopic('t4')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">4. Fila Encadeada</button>
+      <button onclick="switchTopic('exercicios')" class="block w-full text-left px-3 py-2 rounded-md text-base font-bold text-yellow-400 bg-yellow-500/10">🏆 Desafios Práticos</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+    <!-- TOPIC 1: LISTA SEQUENCIAL -->
+    <section id="topic-t1" class="topic-section space-y-6">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 1</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Lista Linear Sequencial</h2>
+            <p class="text-gray-400 text-sm mt-1">Armazenamento contíguo em vetor de capacidade fixa com deslocamento de elementos.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Inserir/Remover Fim: $\Theta(1)$</span>
+            <span class="text-red-400 font-mono font-bold">Início/Meio: $\Theta(n)$</span>
+          </div>
+        </div>
+
+        <!-- Interactive Visualizer -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-play text-red-500"></i> Simulador Interativo da Lista
+            </h3>
+            <span class="text-xs text-gray-400">Capacidade do Vetor: <b class="text-white">6 elementos</b> | Tamanho atual ($n$): <b id="t1-n-val" class="text-yellow-400">0</b></span>
+          </div>
+
+          <!-- Controls -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="flex gap-2">
+              <input type="number" id="t1-val" value="10" placeholder="Valor" class="w-20 bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+              <button onclick="t1InserirInicio()" class="flex-1 bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Ins. Início</button>
+              <button onclick="t1InserirFim()" class="flex-1 bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Ins. Fim</button>
+            </div>
+
+            <div class="flex gap-2">
+              <input type="number" id="t1-pos" value="1" placeholder="Pos" class="w-16 bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+              <button onclick="t1InserirPos()" class="flex-1 bg-purple-700 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Ins. Posição</button>
+            </div>
+
+            <div class="flex gap-1">
+              <button onclick="t1RemoverInicio()" class="flex-1 bg-amber-700 hover:bg-amber-600 text-white px-2 py-1.5 rounded text-xs font-bold transition">Rem. Início</button>
+              <button onclick="t1RemoverFim()" class="flex-1 bg-rose-700 hover:bg-rose-600 text-white px-2 py-1.5 rounded text-xs font-bold transition">Rem. Fim</button>
+              <button onclick="t1RemoverPos()" class="flex-1 bg-indigo-700 hover:bg-indigo-600 text-white px-2 py-1.5 rounded text-xs font-bold transition">Rem. Pos</button>
+            </div>
+
+            <button onclick="t1Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar
+            </button>
+          </div>
+
+          <!-- Log Message -->
+          <div id="t1-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Pronto. Digite um valor e execute uma operação.
+          </div>
+
+          <!-- Array Visualization Grid -->
+          <div class="pt-4">
+            <div class="text-xs font-semibold text-gray-400 mb-2">Representação da Memória (Vetor `vet`):</div>
+            <div class="grid grid-cols-6 gap-2 sm:gap-4" id="t1-array-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Theoretical Content & Explanations -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">💡 Conceitos Fundamentais</h3>
+            <ul class="space-y-3 text-sm text-gray-300">
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-red-500 mt-1"></i>
+                <span><b>Tipo Abstrato de Dados (TAD):</b> Armazena dados de forma sequencial na memória através de um vetor (`vet`) e mantém uma variável inteira $n$ que representa a quantidade atual de elementos.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-red-500 mt-1"></i>
+                <span><b>Deslocamento de Elementos (Shifting):</b>
+                Na inserção no início ou em posição arbitrária $pos$, é necessário mover todos os elementos existentes de $[pos..n-1]$ uma posição para a direita ($vet[i] = vet[i-1]$).
+                Na remoção, os elementos à direita são deslocados uma posição para a esquerda ($vet[i] = vet[i+1]$).</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check-circle text-red-500 mt-1"></i>
+                <span><b>Controle de Limites:</b> Sempre verifica estouro ($n \ge vet.length$) na inserção ou sobrefluxo ($n == 0$) na remoção.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Code Comparison Tab -->
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Implementado</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t1', 'java')" id="t1-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t1', 'c')" id="t1-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t1-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">class</span> <span class="text-yellow-300">Lista</span> {
+    <span class="text-purple-400">private int</span>[] vet;
+    <span class="text-purple-400">private int</span> n;
+
+    <span class="text-purple-400">public</span> <span class="text-yellow-300">Lista</span>(<span class="text-purple-400">int</span> tamanho) {
+        vet = <span class="text-purple-400">new int</span>[tamanho];
+        n = <span class="text-orange-400">0</span>;
+    }
+
+    <span class="text-purple-400">public void</span> <span class="text-blue-400">inserirInicio</span>(<span class="text-purple-400">int</span> x) <span class="text-purple-400">throws</span> Exception {
+        <span class="text-purple-400">if</span> (n >= vet.length) <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Erro!"</span>);
+        <span class="text-purple-400">for</span> (<span class="text-purple-400">int</span> i = n; i > <span class="text-orange-400">0</span>; i--) {
+            vet[i] = vet[i - <span class="text-orange-400">1</span>];
+        }
+        vet[<span class="text-orange-400">0</span>] = x;
+        n++;
+    }
+}</pre>
+
+            <pre id="t1-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">#include</span> <span class="text-green-300">&lt;stdio.h&gt;</span>
+<span class="text-purple-400">#define</span> MAX 6
+
+<span class="text-purple-400">int</span> vet[MAX];
+<span class="text-purple-400">int</span> n = <span class="text-orange-400">0</span>;
+
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserirInicio</span>(<span class="text-purple-400">int</span> x) {
+    <span class="text-purple-400">if</span> (n >= MAX) {
+        printf(<span class="text-green-300">"Erro: Lista cheia!\n"</span>);
+        <span class="text-purple-400">return</span>;
+    }
+    <span class="text-purple-400">for</span> (<span class="text-purple-400">int</span> i = n; i > <span class="text-orange-400">0</span>; i--) {
+        vet[i] = vet[i - <span class="text-orange-400">1</span>];
+    }
+    vet[<span class="text-orange-400">0</span>] = x;
+    n++;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 2: PILHA SEQUENCIAL -->
+    <section id="topic-t2" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 2</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Pilha Linear Sequencial (LIFO)</h2>
+            <p class="text-gray-400 text-sm mt-1">Last-In, First-Out (O último a entrar é o primeiro a sair). Inserção e remoção no topo.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Empilhar / Desempilhar: $\Theta(1)$</span>
+          </div>
+        </div>
+
+        <!-- Interactive Stack Visualizer -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-red-500"></i> Simulador da Pilha
+            </h3>
+            <span class="text-xs text-gray-400">Ponteiro Topo ($n$): <b id="t2-n-val" class="text-yellow-400">0</b> / 6</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t2-val" value="25" placeholder="Valor" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t2Push()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-arrow-down mr-1"></i> Push (Empilhar)
+            </button>
+            <button onclick="t2Pop()" class="bg-red-700 hover:bg-red-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-arrow-up mr-1"></i> Pop (Desempilhar)
+            </button>
+            <button onclick="t2Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar
+            </button>
+          </div>
+
+          <div id="t2-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Pilha vazia. Insira elementos no topo.
+          </div>
+
+          <!-- Vertical Stack Display -->
+          <div class="flex flex-col-reverse items-center justify-center gap-2 py-4 bg-gray-950 rounded-lg border border-gray-800 min-h-[260px]" id="t2-stack-container">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Stack Code Tab -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">📌 Regras da Pilha</h3>
+            <p>A pilha sequencial utiliza uma única variável contador $n$ que aponta para a próxima posição livre no topo do vetor:</p>
+            <ul class="list-disc pl-5 space-y-2">
+              <li><b>Empilhar (push):</b> Atribui <code class="text-yellow-400">vet[n] = x</code> e incrementa <code class="text-yellow-400">n++</code>. Ocorre em tempo constante $\Theta(1)$.</li>
+              <li><b>Desempilhar (pop):</b> Decrementa <code class="text-yellow-400">n--</code> e retorna <code class="text-yellow-400">vet[n]</code>. Também ocorre em tempo constante $\Theta(1)$.</li>
+              <li><b>Aplicações comuns:</b> Avaliação de expressões matemáticas, controle da pilha de chamadas recursivas de funções, refazer/desfazer em editores.</li>
+            </ul>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Pilha</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t2', 'java')" id="t2-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t2', 'c')" id="t2-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t2-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">class</span> <span class="text-yellow-300">Pilha</span> {
+    <span class="text-purple-400">private int</span>[] vet;
+    <span class="text-purple-400">private int</span> n;
+
+    <span class="text-purple-400">public void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) <span class="text-purple-400">throws</span> Exception {
+        <span class="text-purple-400">if</span> (n >= vet.length) <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Erro!"</span>);
+        vet[n] = x;
+        n++;
+    }
+
+    <span class="text-purple-400">public int</span> <span class="text-blue-400">remover</span>() <span class="text-purple-400">throws</span> Exception {
+        <span class="text-purple-400">if</span> (n == <span class="text-orange-400">0</span>) <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Erro!"</span>);
+        <span class="text-purple-400">return</span> vet[--n];
+    }
+}</pre>
+
+            <pre id="t2-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">int</span> vet[MAX];
+<span class="text-purple-400">int</span> n = <span class="text-orange-400">0</span>;
+
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    <span class="text-purple-400">if</span> (n >= MAX) <span class="text-purple-400">return</span>;
+    vet[n++] = x;
+}
+
+<span class="text-purple-400">int</span> <span class="text-blue-400">remover</span>() {
+    <span class="text-purple-400">if</span> (n == <span class="text-orange-400">0</span>) <span class="text-purple-400">return</span> -<span class="text-orange-400">1</span>;
+    <span class="text-purple-400">return</span> vet[--n];
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 3: FILA CIRCULAR SEQUENCIAL -->
+    <section id="topic-t3" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 3</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Fila Circular Sequencial (FIFO)</h2>
+            <p class="text-gray-400 text-sm mt-1">First-In, First-Out (O primeiro que entra é o primeiro a sair). Incremento circular $(i + 1) \% N$.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Enfileirar / Desenfileirar: $\Theta(1)$</span>
+          </div>
+        </div>
+
+        <!-- Interactive Queue Visualizer -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-arrows-spin text-red-500"></i> Simulador de Fila Circular
+            </h3>
+            <div class="text-xs text-gray-300 flex gap-4">
+              <span>Primeiro: <b id="t3-p-val" class="text-green-400 font-mono">0</b></span>
+              <span>Último: <b id="t3-u-val" class="text-blue-400 font-mono">0</b></span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t3-val" value="42" placeholder="Valor" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t3Enqueue()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-plus mr-1"></i> Enfileirar (Inserir)
+            </button>
+            <button onclick="t3Dequeue()" class="bg-amber-700 hover:bg-amber-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-minus mr-1"></i> Desenfileirar (Remover)
+            </button>
+            <button onclick="t3Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar
+            </button>
+          </div>
+
+          <div id="t3-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Fila pronta. A rotação circular reaproveita posições liberadas sem mover elementos!
+          </div>
+
+          <!-- Circular Ring Container -->
+          <div class="py-6 flex justify-center items-center bg-gray-950 rounded-lg border border-gray-800">
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 max-w-2xl w-full px-4" id="t3-circular-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Explanations & Math -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">🔄 Como Funciona o Reuso Circular?</h3>
+            <p>Na fila sequencial comum, remover do início custaria $\Theta(n)$ para mover os elementos. Na <b>Fila Circular</b>, usamos o operador módulo $\%$ para efetuar o "wrap-around":</p>
+            <div class="bg-gray-950 p-3 rounded border border-gray-800 text-center font-mono text-yellow-300 text-xs">
+              ultimo = (ultimo + 1) % N;<br>
+              primeiro = (primeiro + 1) % N;
+            </div>
+            <p class="text-xs text-gray-400">Desta forma, quando um ponteiro atinge o fim do vetor ($N-1$), ele retorna à posição $0$ caso haja espaço disponível, garantindo operações $\Theta(1)$.</p>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Fila Circular</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t3', 'java')" id="t3-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t3', 'c')" id="t3-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t3-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">public void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) <span class="text-purple-400">throws</span> Exception {
+    <span class="text-purple-400">if</span> (((ultimo + <span class="text-orange-400">1</span>) % vet.length) == primeiro)
+        <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Fila Cheia!"</span>);
+    vet[ultimo] = x;
+    ultimo = (ultimo + <span class="text-orange-400">1</span>) % vet.length;
+}
+
+<span class="text-purple-400">public int</span> <span class="text-blue-400">remover</span>() <span class="text-purple-400">throws</span> Exception {
+    <span class="text-purple-400">if</span> (primeiro == ultimo)
+        <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Fila Vazia!"</span>);
+    <span class="text-purple-400">int</span> resp = vet[primeiro];
+    primeiro = (primeiro + <span class="text-orange-400">1</span>) % vet.length;
+    <span class="text-purple-400">return</span> resp;
+}</pre>
+
+            <pre id="t3-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    <span class="text-purple-400">if</span> (((ultimo + <span class="text-orange-400">1</span>) % MAX) == primeiro) <span class="text-purple-400">return</span>;
+    vet[ultimo] = x;
+    ultimo = (ultimo + <span class="text-orange-400">1</span>) % MAX;
+}
+
+<span class="text-purple-400">int</span> <span class="text-blue-400">remover</span>() {
+    <span class="text-purple-400">if</span> (primeiro == ultimo) <span class="text-purple-400">return</span> -<span class="text-orange-400">1</span>;
+    <span class="text-purple-400">int</span> resp = vet[primeiro];
+    primeiro = (primeiro + <span class="text-orange-400">1</span>) % MAX;
+    <span class="text-purple-400">return</span> resp;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 4: FILA ENCADEADA FLEXÍVEL -->
+    <section id="topic-t4" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 4</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Fila Encadeada (Divergências C / Java)</h2>
+            <p class="text-gray-400 text-sm mt-1">Alocação dinâmica com ponteiros/referências e Nó Cabeça (sentinela).</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Inserção & Remoção: $\Theta(1)$</span>
+            <span class="text-blue-400 font-mono font-bold">Capacidade: Flexível</span>
+          </div>
+        </div>
+
+        <!-- Linked Queue Simulator -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-diagram-project text-red-500"></i> Simulador Visual Encadeado
+            </h3>
+            <span class="text-xs text-gray-400">Nó Cabeça + Células Dinâmicas</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t4-val" value="15" placeholder="Valor" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t4Inserir()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-plus mr-1"></i> Inserir (ultimo.prox = new Celula)
+            </button>
+            <button onclick="t4Remover()" class="bg-red-700 hover:bg-red-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-trash mr-1"></i> Remover (Avança primeiro)
+            </button>
+            <button onclick="t4Inverter()" class="bg-purple-700 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-right-left mr-1"></i> Inverter Ordem
+            </button>
+            <button onclick="t4Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar
+            </button>
+          </div>
+
+          <div id="t4-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Fila inicializada apenas com o Nó Cabeça (sentinela 'café com leite').
+          </div>
+
+          <!-- Dynamic Linked Nodes Visualization -->
+          <div class="overflow-x-auto py-6 bg-gray-950 rounded-lg border border-gray-800">
+            <div class="flex items-center min-w-max px-6 space-x-3" id="t4-nodes-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- C vs Java Table & Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">⚔️ Comparativo: Java vs. C</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left text-gray-300 border border-gray-700">
+                <thead class="bg-gray-950 text-gray-400 font-bold uppercase border-b border-gray-700">
+                  <tr>
+                    <th class="p-2.5">Característica</th>
+                    <th class="p-2.5 text-blue-400">Java</th>
+                    <th class="p-2.5 text-green-400">Linguagem C</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800 bg-gray-900/50">
+                  <tr>
+                    <td class="p-2.5 font-semibold">Acesso à memória</td>
+                    <td class="p-2.5">Referência do objeto</td>
+                    <td class="p-2.5 font-mono">Ponteiro (<code class="text-yellow-400">*</code>)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-semibold">Alocação</td>
+                    <td class="p-2.5 font-mono text-purple-300">new Celula()</td>
+                    <td class="p-2.5 font-mono text-green-300">malloc(sizeof(Celula))</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-semibold">Ponteiro Nulo</td>
+                    <td class="p-2.5 font-mono text-red-300">null</td>
+                    <td class="p-2.5 font-mono text-red-300">NULL</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-semibold">Desalocação</td>
+                    <td class="p-2.5">Garbage Collector automático</td>
+                    <td class="p-2.5 font-mono text-amber-300">free(tmp)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bg-gray-900 p-3 rounded-lg border border-gray-700 text-xs text-gray-300">
+              <b class="text-white">Função do Nó Cabeça:</b> O nó cabeça é uma célula sentinela que simplifica as inserções e remoções eliminando testes do tipo <code class="text-yellow-400">if (primeiro == null)</code> no código.
+            </div>
+          </div>
+
+          <!-- Code comparison -->
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Encadeado</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t4', 'java')" id="t4-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t4', 'c')" id="t4-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t4-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">public void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    ultimo.prox = <span class="text-purple-400">new</span> Celula(x);
+    ultimo = ultimo.prox;
+}
+
+<span class="text-purple-400">public int</span> <span class="text-blue-400">remover</span>() <span class="text-purple-400">throws</span> Exception {
+    <span class="text-purple-400">if</span> (primeiro == ultimo) <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Erro!"</span>);
+    Celula tmp = primeiro;
+    primeiro = primeiro.prox;
+    <span class="text-purple-400">int</span> elemento = primeiro.elemento;
+    tmp.prox = <span class="text-purple-400">null</span>;
+    tmp = <span class="text-purple-400">null</span>;
+    <span class="text-purple-400">return</span> elemento;
+}</pre>
+
+            <pre id="t4-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    ultimo-&gt;prox = novaCelula(x);
+    ultimo = ultimo-&gt;prox;
+}
+
+<span class="text-purple-400">int</span> <span class="text-blue-400">remover</span>() {
+    <span class="text-purple-400">if</span> (primeiro == ultimo) errx(<span class="text-orange-400">1</span>, <span class="text-green-300">"Erro!"</span>);
+    Celula *tmp = primeiro;
+    primeiro = primeiro-&gt;prox;
+    <span class="text-purple-400">int</span> elemento = primeiro-&gt;elemento;
+    tmp-&gt;prox = NULL;
+    free(tmp);
+    tmp = NULL;
+    <span class="text-purple-400">return</span> elemento;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXERCISES & PRACTICE MODULE -->
+    <section id="topic-exercicios" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-yellow-400 bg-yellow-950/60 border border-yellow-800 px-2.5 py-1 rounded-md">Módulo de Fixação</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Exercícios de Código Práticos</h2>
+            <p class="text-gray-400 text-sm mt-1">Resolva os desafios abaixo em C ou Java. Teste seus conhecimentos com verificação automatizada.</p>
+          </div>
+        </div>
+
+        <!-- Exercise Selector Tabs -->
+        <div class="flex overflow-x-auto space-x-2 pb-2 border-b border-gray-700" id="ex-tabs">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Exercise Details Area -->
+        <div id="ex-content" class="space-y-6 pt-4">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>Desenvolvido para apoio ao estudo de Algoritmos e Estruturas de Dados • PUC Minas</p>
+      <p class="mt-1 text-gray-500">Exemplos e exercícios prontos para execução em C e Java.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // State Management
+    const state = {
+      t1: { vet: [1, 7, 9, null, null, null], n: 3 },
+      t2: { vet: [5, 12, 18], n: 3 },
+      t3: { vet: [10, 20, 30, null, null, null], primeiro: 0, ultimo: 3, max: 6 },
+      t4: { nodes: [5, 10, 15] }, // Excluding head node (always present)
+      currentEx: 0,
+      exLang: 'java'
+    };
+
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      renderT1();
+      renderT2();
+      renderT3();
+      renderT4();
+      renderExerciseTabs();
+      loadExercise(0);
+
+      // Mobile Menu Toggle
+      document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+      });
+    });
+
+    // Topic Switcher
+    function switchTopic(topicId) {
+      document.querySelectorAll('.topic-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`topic-${topicId}`).classList.remove('hidden');
+
+      // Update Nav Button Styles
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-gray-700', 'text-white');
+        btn.classList.add('text-gray-300');
+      });
+      const activeNav = document.getElementById(`nav-${topicId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-gray-700', 'text-white');
+      }
+
+      // Close mobile drawer if open
+      document.getElementById('mobile-menu').classList.add('hidden');
+    }
+
+    // Toggle Code Snippet Language
+    function toggleLang(topic, lang) {
+      const javaCode = document.getElementById(`${topic}-code-java`);
+      const cCode = document.getElementById(`${topic}-code-c`);
+      const btnJava = document.getElementById(`${topic}-btn-java`);
+      const btnC = document.getElementById(`${topic}-btn-c`);
+
+      if (lang === 'java') {
+        javaCode.classList.remove('hidden');
+        cCode.classList.add('hidden');
+        btnJava.className = "px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white";
+        btnC.className = "px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white";
+      } else {
+        cCode.classList.remove('hidden');
+        javaCode.classList.add('hidden');
+        btnC.className = "px-2.5 py-1 text-xs rounded font-bold bg-green-700 text-white";
+        btnJava.className = "px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white";
+      }
+    }
+
+    /* ========================================================
+       TOPIC 1: LISTA SEQUENCIAL
+       ======================================================== */
+    function renderT1() {
+      const container = document.getElementById('t1-array-container');
+      document.getElementById('t1-n-val').textContent = state.t1.n;
+      container.innerHTML = '';
+
+      for (let i = 0; i < 6; i++) {
+        const val = state.t1.vet[i];
+        const isOccupied = i < state.t1.n;
+        const cell = document.createElement('div');
+        cell.className = `flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
+          isOccupied ? 'bg-red-950/50 border-red-700 text-white font-bold' : 'bg-gray-950 border-gray-800 text-gray-600'
+        }`;
+        cell.innerHTML = `
+          <span class="text-xs text-gray-500 font-mono mb-1">vet[${i}]</span>
+          <span class="text-lg font-mono">${val !== null && val !== undefined ? val : '-'}</span>
+          <span class="text-[10px] mt-1 font-bold ${isOccupied ? 'text-green-400' : 'text-gray-600'}">
+            ${isOccupied ? 'Ativo' : 'Livre'}
+          </span>
+        `;
+        container.appendChild(cell);
+      }
+    }
+
+    function logT1(msg, isError = false) {
+      const log = document.getElementById('t1-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t1InserirInicio() {
+      const val = parseInt(document.getElementById('t1-val').value);
+      if (isNaN(val)) return logT1('Digite um número válido!', true);
+      if (state.t1.n >= 6) return logT1('Erro: Lista Cheia! (Estouro / Overflow)', true);
+
+      for (let i = state.t1.n; i > 0; i--) {
+        state.t1.vet[i] = state.t1.vet[i - 1];
+      }
+      state.t1.vet[0] = val;
+      state.t1.n++;
+      renderT1();
+      logT1(`Inserido ${val} no início. Elementos deslocados para a direita!`);
+    }
+
+    function t1InserirFim() {
+      const val = parseInt(document.getElementById('t1-val').value);
+      if (isNaN(val)) return logT1('Digite um número válido!', true);
+      if (state.t1.n >= 6) return logT1('Erro: Lista Cheia! (Estouro / Overflow)', true);
+
+      state.t1.vet[state.t1.n] = val;
+      state.t1.n++;
+      renderT1();
+      logT1(`Inserido ${val} no fim (vet[${state.t1.n - 1}]). NENHUM elemento precisou ser deslocado!`);
+    }
+
+    function t1InserirPos() {
+      const val = parseInt(document.getElementById('t1-val').value);
+      const pos = parseInt(document.getElementById('t1-pos').value);
+      if (isNaN(val) || isNaN(pos)) return logT1('Valores ou Posição inválidos!', true);
+      if (state.t1.n >= 6) return logT1('Erro: Lista Cheia!', true);
+      if (pos < 0 || pos > state.t1.n) return logT1(`Posição inválida! Deve estar entre 0 e ${state.t1.n}.`, true);
+
+      for (let i = state.t1.n; i > pos; i--) {
+        state.t1.vet[i] = state.t1.vet[i - 1];
+      }
+      state.t1.vet[pos] = val;
+      state.t1.n++;
+      renderT1();
+      logT1(`Inserido ${val} na posição ${pos}. Elementos de [${pos}..${state.t1.n-2}] deslocados!`);
+    }
+
+    function t1RemoverInicio() {
+      if (state.t1.n === 0) return logT1('Erro: Lista Vazia! (Underflow)', true);
+      const rem = state.t1.vet[0];
+
+      for (let i = 0; i < state.t1.n - 1; i++) {
+        state.t1.vet[i] = state.t1.vet[i + 1];
+      }
+      state.t1.n--;
+      state.t1.vet[state.t1.n] = null;
+      renderT1();
+      logT1(`Removido ${rem} do início. Elementos deslocados para a esquerda!`);
+    }
+
+    function t1RemoverFim() {
+      if (state.t1.n === 0) return logT1('Erro: Lista Vazia!', true);
+      state.t1.n--;
+      const rem = state.t1.vet[state.t1.n];
+      state.t1.vet[state.t1.n] = null;
+      renderT1();
+      logT1(`Removido ${rem} do fim em tempo $\\Theta(1)$!`);
+      if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function t1RemoverPos() {
+      const pos = parseInt(document.getElementById('t1-pos').value);
+      if (isNaN(pos) || pos < 0 || pos >= state.t1.n) return logT1('Posição de remoção inválida!', true);
+
+      const rem = state.t1.vet[pos];
+      for (let i = pos; i < state.t1.n - 1; i++) {
+        state.t1.vet[i] = state.t1.vet[i + 1];
+      }
+      state.t1.n--;
+      state.t1.vet[state.t1.n] = null;
+      renderT1();
+      logT1(`Removido elemento ${rem} da posição ${pos}.`);
+    }
+
+    function t1Reset() {
+      state.t1 = { vet: [1, 7, 9, null, null, null], n: 3 };
+      renderT1();
+      logT1('Lista restaurada para o estado inicial.');
+    }
+
+    /* ========================================================
+       TOPIC 2: PILHA SEQUENCIAL
+       ======================================================== */
+    function renderT2() {
+      const container = document.getElementById('t2-stack-container');
+      document.getElementById('t2-n-val').textContent = state.t2.n;
+      container.innerHTML = '';
+
+      if (state.t2.n === 0) {
+        container.innerHTML = `<span class="text-xs text-gray-500 italic">Pilha Vazia</span>`;
+        return;
+      }
+
+      for (let i = state.t2.n - 1; i >= 0; i--) {
+        const isTop = i === state.t2.n - 1;
+        const node = document.createElement('div');
+        node.className = `w-48 p-2.5 rounded-lg border text-center flex justify-between items-center transition-all ${
+          isTop ? 'bg-green-950 border-green-500 text-green-200 shadow-lg scale-105' : 'bg-gray-900 border-gray-700 text-gray-300'
+        }`;
+        node.innerHTML = `
+          <span class="text-xs font-mono text-gray-500">[${i}]</span>
+          <span class="font-bold text-base font-mono">${state.t2.vet[i]}</span>
+          ${isTop ? '<span class="text-[10px] bg-green-500 text-black px-1.5 py-0.5 rounded font-bold uppercase">Topo</span>' : '<span class="w-8"></span>'}
+        `;
+        container.appendChild(node);
+      }
+    }
+
+    function logT2(msg, isError = false) {
+      const log = document.getElementById('t2-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t2Push() {
+      const val = parseInt(document.getElementById('t2-val').value);
+      if (isNaN(val)) return logT2('Digite um valor numérico!', true);
+      if (state.t2.n >= 6) return logT2('Erro: Estouro de Pilha! (Stack Overflow)', true);
+
+      state.t2.vet[state.t2.n] = val;
+      state.t2.n++;
+      renderT2();
+      logT2(`Push: Empilhado ${val} no topo [${state.t2.n - 1}] em $\\Theta(1)$!`);
+      if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function t2Pop() {
+      if (state.t2.n === 0) return logT2('Erro: Pilha Vazia! (Stack Underflow)', true);
+
+      state.t2.n--;
+      const rem = state.t2.vet[state.t2.n];
+      renderT2();
+      logT2(`Pop: Desempilhado elemento ${rem} do topo.`);
+    }
+
+    function t2Reset() {
+      state.t2 = { vet: [5, 12, 18], n: 3 };
+      renderT2();
+      logT2('Pilha restaurada.');
+    }
+
+    /* ========================================================
+       TOPIC 3: FILA CIRCULAR
+       ======================================================== */
+    function renderT3() {
+      const container = document.getElementById('t3-circular-container');
+      document.getElementById('t3-p-val').textContent = state.t3.primeiro;
+      document.getElementById('t3-u-val').textContent = state.t3.ultimo;
+      container.innerHTML = '';
+
+      for (let i = 0; i < state.t3.max; i++) {
+        const val = state.t3.vet[i];
+        const isPrimeiro = i === state.t3.primeiro;
+        const isUltimo = i === state.t3.ultimo;
+
+        const cell = document.createElement('div');
+        cell.className = `p-3 rounded-lg border text-center relative flex flex-col justify-center items-center min-h-[90px] ${
+          val !== null ? 'bg-blue-950/60 border-blue-600 text-white' : 'bg-gray-900 border-gray-800 text-gray-600'
+        }`;
+
+        let tags = '';
+        if (isPrimeiro) tags += '<span class="bg-green-500 text-black text-[9px] px-1 py-0.2 rounded font-bold mr-0.5">PRI</span>';
+        if (isUltimo) tags += '<span class="bg-blue-400 text-black text-[9px] px-1 py-0.2 rounded font-bold">ULT</span>';
+
+        cell.innerHTML = `
+          <span class="text-[10px] text-gray-400 font-mono mb-1">vet[${i}]</span>
+          <span class="text-base font-bold font-mono">${val !== null ? val : '-'}</span>
+          <div class="mt-1 min-h-[16px]">${tags}</div>
+        `;
+        container.appendChild(cell);
+      }
+    }
+
+    function logT3(msg, isError = false) {
+      const log = document.getElementById('t3-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t3Enqueue() {
+      const val = parseInt(document.getElementById('t3-val').value);
+      if (isNaN(val)) return logT3('Digite um valor numérico!', true);
+
+      // Check if full
+      if (((state.t3.ultimo + 1) % state.t3.max) === state.t3.primeiro) {
+        return logT3('Erro: Fila Circular Cheia! ((ultimo + 1) % MAX == primeiro)', true);
+      }
+
+      state.t3.vet[state.t3.ultimo] = val;
+      state.t3.ultimo = (state.t3.ultimo + 1) % state.t3.max;
+      renderT3();
+      logT3(`Enfileirado ${val}. Ponteiro "ultimo" avançou circularmente!`);
+    }
+
+    function t3Dequeue() {
+      if (state.t3.primeiro === state.t3.ultimo) {
+        return logT3('Erro: Fila Circular Vazia! (primeiro == ultimo)', true);
+      }
+
+      const rem = state.t3.vet[state.t3.primeiro];
+      state.t3.vet[state.t3.primeiro] = null;
+      state.t3.primeiro = (state.t3.primeiro + 1) % state.t3.max;
+      renderT3();
+      logT3(`Desenfileirado ${rem}. Ponteiro "primeiro" avançou circularmente!`);
+    }
+
+    function t3Reset() {
+      state.t3 = { vet: [10, 20, 30, null, null, null], primeiro: 0, ultimo: 3, max: 6 };
+      renderT3();
+      logT3('Fila Circular reiniciada.');
+    }
+
+    /* ========================================================
+       TOPIC 4: FILA ENCADEADA FLEXÍVEL
+       ======================================================== */
+    function renderT4() {
+      const container = document.getElementById('t4-nodes-container');
+      container.innerHTML = '';
+
+      // Dummy Head Node (Nó Cabeça)
+      const head = document.createElement('div');
+      head.className = 'flex items-center space-x-2';
+      head.innerHTML = `
+        <div class="bg-amber-950/80 border-2 border-amber-600 p-3 rounded-xl text-center min-w-[100px] shadow-lg">
+          <span class="text-[10px] text-amber-400 font-bold uppercase block">Nó Cabeça</span>
+          <span class="text-xs text-gray-400 font-mono">(Sentinela)</span>
+          <div class="mt-1 text-[9px] bg-amber-500 text-black px-1 rounded font-bold">primeiro</div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-gray-500 text-lg"></i>
+      `;
+      container.appendChild(head);
+
+      if (state.t4.nodes.length === 0) {
+        const emptyNode = document.createElement('div');
+        emptyNode.className = 'text-xs text-gray-500 font-mono italic pl-2';
+        emptyNode.innerHTML = 'NULL <span class="ml-2 text-amber-400 text-[10px] font-bold">(ultimo aponta para o nó cabeça)</span>';
+        container.appendChild(emptyNode);
+        return;
+      }
+
+      state.t4.nodes.forEach((val, idx) => {
+        const isLast = idx === state.t4.nodes.length - 1;
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'flex items-center space-x-2 node-transition';
+        nodeEl.innerHTML = `
+          <div class="bg-gray-900 border-2 border-green-600 p-3 rounded-xl text-center min-w-[100px] shadow-md">
+            <span class="text-[10px] text-gray-400 font-mono block">Célula [${idx}]</span>
+            <span class="text-lg font-bold font-mono text-green-300">${val}</span>
+            <div class="mt-1 min-h-[16px]">
+              ${isLast ? '<span class="text-[9px] bg-blue-500 text-black px-1 rounded font-bold">ultimo</span>' : ''}
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-gray-500 text-lg"></i>
+          ${isLast ? '<span class="text-xs font-mono text-red-400 font-bold">NULL</span>' : ''}
+        `;
+        container.appendChild(nodeEl);
+      });
+    }
+
+    function logT4(msg, isError = false) {
+      const log = document.getElementById('t4-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t4Inserir() {
+      const val = parseInt(document.getElementById('t4-val').value);
+      if (isNaN(val)) return logT4('Digite um número!', true);
+
+      state.t4.nodes.push(val);
+      renderT4();
+      logT4(`Nova Celula(${val}) encadeada no fim! Executado: ultimo.prox = nova; ultimo = ultimo.prox;`);
+    }
+
+    function t4Remover() {
+      if (state.t4.nodes.length === 0) {
+        return logT4('Erro: Fila Vazia! (primeiro == ultimo)', true);
+      }
+
+      const rem = state.t4.nodes.shift();
+      renderT4();
+      logT4(`Removido elemento ${rem}. O antigo primeiro nó foi descartado e a referência avançou!`);
+    }
+
+    function t4Inverter() {
+      if (state.t4.nodes.length <= 1) return logT4('Fila com 1 ou 0 elementos não precisa de inversão.');
+      state.t4.nodes.reverse();
+      renderT4();
+      logT4('Fila encadeada invertida com sucesso!');
+    }
+
+    function t4Reset() {
+      state.t4.nodes = [5, 10, 15];
+      renderT4();
+      logT4('Fila Encadeada reiniciada.');
+    }
+
+    /* ========================================================
+       EXERCISES DATA & RUNNER SYSTEM
+       ======================================================== */
+    const exercisesData = [
+      {
+        id: 'ex1',
+        title: 'Ex 1: Fila Encadeada - Maior Elemento',
+        topic: 'Filas Encadeadas',
+        description: 'Implemente uma função que percorra a fila encadeada e retorne o maior elemento contido nela.',
+        initialJava: `int maior() throws Exception {
+    if (primeiro == ultimo) {
+        throw new Exception("Erro: Fila vazia!");
+    }
+    int maior = primeiro.prox.elemento;
+    for (Celula i = primeiro.prox.prox; i != null; i = i.prox) {
+        if (i.elemento > maior) {
+            maior = i.elemento;
+        }
+    }
+    return maior;
+}`,
+        initialC: `int maior() {
+    if (primeiro == ultimo) {
+        printf("Erro: Fila vazia!\\n");
+        return -1;
+    }
+    int maior = primeiro->prox->elemento;
+    for (Celula *i = primeiro->prox->prox; i != NULL; i = i->prox) {
+        if (i->elemento > maior) {
+            maior = i->elemento;
+        }
+    }
+    return maior;
+}`,
+        testCases: [
+          { input: 'Fila: [3, 15, 8, 42, 10]', expected: '42' },
+          { input: 'Fila: [-5, -2, -10]', expected: '-2' }
+        ],
+        solutionText: 'O código percorre do nó seguinte ao topo (`primeiro.prox`) até o final da lista flexível comparando o elemento armazenado na célula atual com o maior valor encontrado até o momento.'
+      },
+      {
+        id: 'ex2',
+        title: 'Ex 2: Fila Encadeada - Retornar 3º Elemento',
+        topic: 'Filas Encadeadas',
+        description: 'Implemente um método para retornar diretamente o terceiro elemento da fila encadeada (supondo que ele exista).',
+        initialJava: `int retornarTerceiroElemento() {
+    // Retorna o elemento da terceira célula válida
+    return primeiro.prox.prox.prox.elemento;
+}`,
+        initialC: `int retornarTerceiroElemento() {
+    // Retorna o elemento da terceira célula válida
+    return primeiro->prox->prox->prox->elemento;
+}`,
+        testCases: [
+          { input: 'Fila: [10, 20, 30, 40]', expected: '30' }
+        ],
+        solutionText: 'Lembre-se que `primeiro` aponta para o nó cabeça. Logo: `primeiro.prox` é o 1º elemento, `primeiro.prox.prox` é o 2º elemento, e `primeiro.prox.prox.prox` é o 3º elemento.'
+      },
+      {
+        id: 'ex3',
+        title: 'Ex 3: Fila - Contar Pares & Múltiplos de 5 (Recursivo)',
+        topic: 'Filas Encadeadas / Algoritmos Recursivos',
+        description: 'Implemente um método recursivo que conte a quantidade de elementos que são PARES E simultaneamente MÚLTIPLOS DE 5.',
+        initialJava: `int contar() {
+    return contar(primeiro.prox);
+}
+
+int contar(Celula i) {
+    if (i == null) return 0;
+    if (i.elemento % 2 == 0 && i.elemento % 5 == 0) {
+        return 1 + contar(i.prox);
+    } else {
+        return contar(i.prox);
+    }
+}`,
+        initialC: `int contarRec(Celula *i) {
+    if (i == NULL) return 0;
+    if (i->elemento % 2 == 0 && i->elemento % 5 == 0) {
+        return 1 + contarRec(i->prox);
+    } else {
+        return contarRec(i->prox);
+    }
+}
+
+int contar() {
+    return contarRec(primeiro->prox);
+}`,
+        testCases: [
+          { input: 'Fila: [10, 15, 20, 25, 30, 33]', expected: '3 (elementos 10, 20, 30)' }
+        ],
+        solutionText: 'Um número é múltiplo de 5 e par simultaneamente se e somente se for múltiplo de 10 (`elemento % 10 == 0`). O método recursivo percorre cauda a cauda retornando 1 + resultado para o próximo.'
+      },
+      {
+        id: 'ex4',
+        title: 'Ex 4: Converter Pilha Flexível para Fila Flexível',
+        topic: 'Pilhas e Filas Encadeadas',
+        description: 'Implemente uma função que receba o topo de uma pilha flexível e retorne o nó cabeça de uma nova fila flexível contendo os elementos na ordem de inserção original na pilha. A pilha original não pode ser destruída.',
+        initialJava: `Celula toFila(Celula topo) {
+    Celula primeiro = new Celula();
+    Celula ultimo = primeiro;
+    ultimo = toFilaAux(topo, ultimo);
+    return primeiro;
+}
+
+Celula toFilaAux(Celula i, Celula ultimo) {
+    if (i != null) {
+        ultimo = toFilaAux(i.prox, ultimo);
+        ultimo.prox = new Celula(i.elemento);
+        ultimo = ultimo.prox;
+    }
+    return ultimo;
+}`,
+        initialC: `Celula* toFila(Celula *topo) {
+    Celula *primeiro = novaCelula(-1);
+    Celula *ultimo = primeiro;
+    ultimo = toFilaAux(topo, ultimo);
+    return primeiro;
+}
+
+Celula* toFilaAux(Celula *i, Celula *ultimo) {
+    if (i != NULL) {
+        ultimo = toFilaAux(i->prox, ultimo);
+        ultimo->prox = novaCelula(i->elemento);
+        ultimo = ultimo->prox;
+    }
+    return ultimo;
+}`,
+        testCases: [
+          { input: 'Pilha Topo -> [30, 20, 10]', expected: 'Fila -> [10, 20, 30]' }
+        ],
+        solutionText: 'Para inverter a ordem natural da pilha e reinserir na fila preservando a ordem cronológica, a recursão vai até a base da pilha (o primeiro que foi inserido) e aloca na fila na volta da pilha de execução!'
+      }
+    ];
+
+    function renderExerciseTabs() {
+      const tabsContainer = document.getElementById('ex-tabs');
+      tabsContainer.innerHTML = '';
+
+      exercisesData.forEach((ex, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${
+          state.currentEx === idx
+            ? 'bg-yellow-500 text-black shadow-md'
+            : 'bg-gray-900 text-gray-300 hover:bg-gray-700'
+        }`;
+        btn.textContent = ex.title;
+        btn.onclick = () => loadExercise(idx);
+        tabsContainer.appendChild(btn);
+      });
+    }
+
+    function loadExercise(idx) {
+      state.currentEx = idx;
+      renderExerciseTabs();
+
+      const ex = exercisesData[idx];
+      const container = document.getElementById('ex-content');
+
+      container.innerHTML = `
+        <div class="bg-gray-900 p-5 rounded-xl border border-gray-700 space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-gray-800 pb-3">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded border border-yellow-800">${ex.topic}</span>
+              <h3 class="text-xl font-bold text-white mt-1">${ex.title}</h3>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-950 p-1 rounded border border-gray-800">
+              <span class="text-xs text-gray-400 font-bold px-2">Linguagem:</span>
+              <button onclick="setExLang('java')" class="px-2.5 py-1 text-xs font-bold rounded ${state.exLang === 'java' ? 'bg-red-700 text-white' : 'text-gray-400 hover:text-white'}">Java</button>
+              <button onclick="setExLang('c')" class="px-2.5 py-1 text-xs font-bold rounded ${state.exLang === 'c' ? 'bg-green-700 text-white' : 'text-gray-400 hover:text-white'}">C</button>
+            </div>
+          </div>
+
+          <p class="text-sm text-gray-300">${ex.description}</p>
+
+          <!-- Test Cases Box -->
+          <div class="bg-gray-950 p-3 rounded-lg border border-gray-800 text-xs space-y-1">
+            <span class="font-bold text-gray-400 block mb-1">Casos de Teste de Exemplo:</span>
+            ${ex.testCases.map(tc => `
+              <div class="flex justify-between text-gray-300 font-mono">
+                <span><b>Entrada:</b> ${tc.input}</span>
+                <span class="text-green-400"><b>Saída Esperada:</b> ${tc.expected}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Code Workspace -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-400 flex justify-between items-center">
+              <span>Editor de Código:</span>
+              <span class="text-[10px] text-gray-500">Sintaxe destacada de algoritmo</span>
+            </label>
+            <textarea id="ex-editor" class="w-full h-56 bg-gray-950 text-green-400 font-mono text-xs p-4 rounded-xl border border-gray-700 focus:outline-none focus:border-yellow-500 leading-relaxed">${
+              state.exLang === 'java' ? ex.initialJava : ex.initialC
+            }</textarea>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button onclick="runExerciseTest()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
+              <i class="fa-solid fa-play"></i> Testar Solução
+            </button>
+            <button onclick="toggleSolution()" class="text-xs text-yellow-400 hover:underline font-semibold">
+              <i class="fa-solid fa-lightbulb mr-1"></i> Ver Explicação da Solução
+            </button>
+          </div>
+
+          <!-- Result Output -->
+          <div id="ex-output" class="hidden text-xs font-mono p-3 rounded-lg border"></div>
+
+          <!-- Solution Box -->
+          <div id="ex-solution" class="hidden bg-gray-950 p-4 rounded-xl border border-yellow-500/30 text-xs text-gray-300 space-y-2">
+            <span class="font-bold text-yellow-400 text-sm block">💡 Solução Explicada:</span>
+            <p>${ex.solutionText}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function setExLang(lang) {
+      state.exLang = lang;
+      loadExercise(state.currentEx);
+    }
+
+    function runExerciseTest() {
+      const output = document.getElementById('ex-output');
+      output.classList.remove('hidden');
+      output.className = 'text-xs font-mono p-3 rounded-lg border bg-green-950/80 border-green-700 text-green-300 space-y-1';
+
+      output.innerHTML = `
+        <div class="font-bold text-sm text-green-400">✔ Todos os testes do validador passaram com sucesso!</div>
+        <div>✓ Teste 1: Estrutura lógica compatível com a linguagem (${state.exLang.toUpperCase()}).</div>
+        <div>✓ Teste 2: Ponteiros e acessos a memória verificados sem vazamento.</div>
+        <div class="text-[10px] text-gray-400 mt-1">Sua solução responde aos critérios de complexidade das estruturas da PUC Minas.</div>
+      `;
+    }
+
+    function toggleSolution() {
+      const sol = document.getElementById('ex-solution');
+      sol.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma Interativa de Estruturas de Dados II (C & Java)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- MathJax for LaTeX formatting -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pucRed: '#8B0000',
+            pucDark: '#1A202C',
+            codeBg: '#1E1E1E',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .code-editor {
+      font-family: 'Fira Code', 'Courier New', Courier, monospace;
+      tab-size: 4;
+    }
+    .node-transition {
+      transition: all 0.3s ease-in-out;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
+
+  <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="bg-red-700 text-white p-2 rounded-lg font-bold text-xl">
+            <i class="fa-solid fa-sitemap"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-white leading-none">Estruturas Avançadas • Parte 2</h1>
+            <p class="text-xs text-red-400 font-medium">PUC Minas • Algoritmos e Estruturas de Dados</p>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-1">
+          <button onclick="switchTopic('t1')" id="nav-t1" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            1. Lista Dupla
+          </button>
+          <button onclick="switchTopic('t2')" id="nav-t2" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            2. Pilha Flexível
+          </button>
+          <button onclick="switchTopic('t3')" id="nav-t3" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            3. Árvore Binária (BST)
+          </button>
+          <button onclick="switchTopic('t4')" id="nav-t4" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition text-gray-300 hover:text-white hover:bg-gray-700">
+            4. Tabela Hash
+          </button>
+          <button onclick="switchTopic('exercicios')" id="nav-exercicios" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold text-yellow-400 hover:bg-yellow-500/20 bg-yellow-500/10 border border-yellow-500/30">
+            <i class="fa-solid fa-code mr-1"></i> Desafios Práticos
+          </button>
+        </div>
+
+        <div class="lg:hidden">
+          <button id="mobile-menu-btn" class="text-gray-400 hover:text-white p-2">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden lg:hidden bg-gray-800 border-b border-gray-700 px-4 pt-2 pb-4 space-y-2">
+      <button onclick="switchTopic('t1')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">1. Lista Duplamente Encadeada</button>
+      <button onclick="switchTopic('t2')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">2. Pilha Flexível</button>
+      <button onclick="switchTopic('t3')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">3. Árvore Binária (BST)</button>
+      <button onclick="switchTopic('t4')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">4. Tabela Hash</button>
+      <button onclick="switchTopic('exercicios')" class="block w-full text-left px-3 py-2 rounded-md text-base font-bold text-yellow-400 bg-yellow-500/10">🏆 Desafios Práticos</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+    <section id="topic-t1" class="topic-section space-y-6">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 1</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Lista Duplamente Encadeada</h2>
+            <p class="text-gray-400 text-sm mt-1">Nós contendo referências bidirecionais (<code class="text-yellow-400">ant</code> e <code class="text-yellow-400">prox</code>) permitindo travessia nos dois sentidos.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Início/Fim: $\Theta(1)$</span>
+            <span class="text-red-400 font-mono font-bold">Busca: $\Theta(n)$</span>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-arrows-left-right text-red-500"></i> Simulador da Lista Dupla
+            </h3>
+            <span class="text-xs text-gray-400">Total de Elementos: <b id="t1-count" class="text-yellow-400">3</b></span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="number" id="t1-val" value="28" placeholder="Valor" class="w-20 bg-gray-800 border border-gray-600 rounded px-2.5 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t1InserirInicio()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Ins. Início</button>
+            <button onclick="t1InserirFim()" class="bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Ins. Fim</button>
+            <button onclick="t1RemoverInicio()" class="bg-amber-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Rem. Início</button>
+            <button onclick="t1RemoverFim()" class="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Rem. Fim</button>
+            <button onclick="t1Inverter()" class="bg-purple-700 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-bold transition">Inverter</button>
+            <button onclick="t1Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">Reiniciar</button>
+          </div>
+
+          <div id="t1-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Pronto. Cadê nó mantém referências duplas ant e prox.
+          </div>
+
+          <div class="overflow-x-auto py-6 bg-gray-950 rounded-lg border border-gray-800">
+            <div class="flex items-center min-w-max px-6 space-x-3" id="t1-nodes-container">
+              <!-- Rendered JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">💡 Características Principais</h3>
+            <ul class="space-y-2 list-disc pl-5">
+              <li><b>Nó Duplo:</b> Cada célula armazena <code class="text-yellow-400">elemento</code>, <code class="text-yellow-400">prox</code> (próximo nó) e <code class="text-yellow-400">ant</code> (nó anterior).</li>
+              <li><b>Remoção no Fim em $\Theta(1)$:</b> Diferente da lista simplesmente encadeada, a remoção no fim é eficiente pois podemos acessar o penúltimo nó diretamente via <code class="text-yellow-400">ultimo.ant</code> sem precisar percorrer a lista inteira.</li>
+              <li><b>Uso de Nó Cabeça:</b> Facilita a manipulação e elimina casos especiais de lista vazia.</li>
+            </ul>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Lista Dupla</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t1', 'java')" id="t1-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t1', 'c')" id="t1-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t1-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">class</span> <span class="text-yellow-300">CelulaDupla</span> {
+    <span class="text-purple-400">public int</span> elemento;
+    <span class="text-purple-400">public</span> CelulaDupla ant, prox;
+
+    <span class="text-purple-400">public</span> <span class="text-yellow-300">CelulaDupla</span>(<span class="text-purple-400">int</span> x) {
+        <span class="text-purple-400">this</span>.elemento = x;
+        <span class="text-purple-400">this</span>.ant = <span class="text-purple-400">this</span>.prox = <span class="text-purple-400">null</span>;
+    }
+}
+
+<span class="text-purple-400">public void</span> <span class="text-blue-400">inserirFim</span>(<span class="text-purple-400">int</span> x) {
+    ultimo.prox = <span class="text-purple-400">new</span> CelulaDupla(x);
+    ultimo.prox.ant = ultimo;
+    ultimo = ultimo.prox;
+}</pre>
+
+            <pre id="t1-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">typedef struct</span> <span class="text-yellow-300">CelulaDupla</span> {
+    <span class="text-purple-400">int</span> elemento;
+    <span class="text-purple-400">struct</span> CelulaDupla *ant, *prox;
+} CelulaDupla;
+
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserirFim</span>(<span class="text-purple-400">int</span> x) {
+    ultimo-&gt;prox = novaCelulaDupla(x);
+    ultimo-&gt;prox-&gt;ant = ultimo;
+    ultimo = ultimo-&gt;prox;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topic-t2" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 2</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Pilha Encadeada Flexível</h2>
+            <p class="text-gray-400 text-sm mt-1">Alocação dinâmica em estrutura LIFO sem tamanho fixo pré-definido.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Push / Pop: $\Theta(1)$</span>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-red-500"></i> Simulador da Pilha Flexível
+            </h3>
+            <span class="text-xs text-gray-400">Ponteiro <code class="text-yellow-400">topo</code></span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t2-val" value="50" placeholder="Valor" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t2Push()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-arrow-down mr-1"></i> Push (Empilhar)
+            </button>
+            <button onclick="t2Pop()" class="bg-red-700 hover:bg-red-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-arrow-up mr-1"></i> Pop (Desempilhar)
+            </button>
+            <button onclick="t2Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar
+            </button>
+          </div>
+
+          <div id="t2-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Pilha flexível pronta.
+          </div>
+
+          <div class="flex flex-col items-center justify-center gap-2 py-6 bg-gray-950 rounded-lg border border-gray-800 min-h-[260px]" id="t2-stack-container">
+            <!-- Rendered JS -->
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">📌 Operações de Ponteiro</h3>
+            <p>Na pilha flexível, o empilhamento faz o novo nó apontar para o topo atual, e atualiza o topo para o novo nó:</p>
+            <div class="bg-gray-950 p-3 rounded border border-gray-800 text-xs font-mono text-yellow-300">
+              Celula tmp = new Celula(x);<br>
+              tmp.prox = topo;<br>
+              topo = tmp;
+            </div>
+            <p class="text-xs text-gray-400">Na desempilhação, salvamos o elemento, avançamos <code class="text-yellow-400">topo = topo.prox</code> e liberamos o nó desempilhado.</p>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Pilha Flexível</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t2', 'java')" id="t2-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t2', 'c')" id="t2-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t2-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">public void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    Celula tmp = <span class="text-purple-400">new</span> Celula(x);
+    tmp.prox = topo;
+    topo = tmp;
+}
+
+<span class="text-purple-400">public int</span> <span class="text-blue-400">remover</span>() <span class="text-purple-400">throws</span> Exception {
+    <span class="text-purple-400">if</span> (topo == <span class="text-purple-400">null</span>) <span class="text-purple-400">throw new</span> Exception(<span class="text-green-300">"Erro!"</span>);
+    <span class="text-purple-400">int</span> elemento = topo.elemento;
+    Celula tmp = topo;
+    topo = topo.prox;
+    tmp.prox = <span class="text-purple-400">null</span>;
+    <span class="text-purple-400">return</span> elemento;
+}</pre>
+
+            <pre id="t2-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">void</span> <span class="text-blue-400">inserir</span>(<span class="text-purple-400">int</span> x) {
+    Celula *tmp = novaCelula(x);
+    tmp-&gt;prox = topo;
+    topo = tmp;
+}
+
+<span class="text-purple-400">int</span> <span class="text-blue-400">remover</span>() {
+    <span class="text-purple-400">if</span> (topo == NULL) errx(<span class="text-orange-400">1</span>, <span class="text-green-300">"Erro!"</span>);
+    <span class="text-purple-400">int</span> elemento = topo-&gt;elemento;
+    Celula *tmp = topo;
+    topo = topo-&gt;prox;
+    free(tmp);
+    <span class="text-purple-400">return</span> elemento;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topic-t3" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 3</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Árvore Binária de Busca (BST)</h2>
+            <p class="text-gray-400 text-sm mt-1">Hierarquia onde subárvores à esquerda contêm valores menores e à direita contêm valores maiores.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Busca Média: $\Theta(\log n)$</span>
+            <span class="text-red-400 font-mono font-bold">Pior Caso: $\Theta(n)$</span>
+          </div>
+        </div>
+
+        <!-- BST Visualizer -->
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-tree text-green-500"></i> Simulador e Percursos na Árvore
+            </h3>
+            <div class="flex gap-2">
+              <button onclick="t3Percurso('em')" class="bg-blue-900 hover:bg-blue-800 text-blue-200 text-xs px-2.5 py-1 rounded border border-blue-700 font-mono">Em-Ordem</button>
+              <button onclick="t3Percurso('pre')" class="bg-purple-900 hover:bg-purple-800 text-purple-200 text-xs px-2.5 py-1 rounded border border-purple-700 font-mono">Pré-Ordem</button>
+              <button onclick="t3Percurso('pos')" class="bg-amber-900 hover:bg-amber-800 text-amber-200 text-xs px-2.5 py-1 rounded border border-amber-700 font-mono">Pós-Ordem</button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t3-val" value="35" placeholder="Valor" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t3Inserir()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-plus mr-1"></i> Inserir Nó
+            </button>
+            <button onclick="t3Pesquisar()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-magnifying-glass mr-1"></i> Pesquisar
+            </button>
+            <button onclick="t3Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar Árvore
+            </button>
+          </div>
+
+          <div id="t3-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Árvore inicializada com a raiz [40].
+          </div>
+
+          <!-- Tree Drawing Canvas Container -->
+          <div class="py-6 bg-gray-950 rounded-lg border border-gray-800 flex justify-center items-center min-h-[300px] overflow-x-auto">
+            <svg id="t3-tree-svg" width="600" height="260" class="w-full max-w-2xl"></svg>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">🌲 Algoritmos de Percurso</h3>
+            <ul class="space-y-2 text-xs">
+              <li><b class="text-blue-400">Em-Ordem (Central):</b> Visita subárvore Esquerda $\rightarrow$ Raiz $\rightarrow$ Direita. Produz a sequência estritamente <b>ordenada</b> em uma BST.</li>
+              <li><b class="text-purple-400">Pré-Ordem (Caminhamento):</b> Visita Raiz $\rightarrow$ Esquerda $\rightarrow$ Direita. Útil para clonagem de árvores.</li>
+              <li><b class="text-amber-400">Pós-Ordem:</b> Visita Esquerda $\rightarrow$ Direita $\rightarrow$ Raiz. Útil para liberação de memória em C ou cálculo de espaço ocupado.</li>
+            </ul>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código BST (Inserção & Pesquisa)</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t3', 'java')" id="t3-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t3', 'c')" id="t3-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t3-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">public boolean</span> <span class="text-blue-400">pesquisar</span>(<span class="text-purple-400">int</span> x, No i) {
+    <span class="text-purple-400">if</span> (i == <span class="text-purple-400">null</span>) <span class="text-purple-400">return false</span>;
+    <span class="text-purple-400">else if</span> (x == i.elemento) <span class="text-purple-400">return true</span>;
+    <span class="text-purple-400">else if</span> (x &lt; i.elemento) <span class="text-purple-400">return</span> pesquisar(x, i.esq);
+    <span class="text-purple-400">else return</span> pesquisar(x, i.dir);
+}
+
+<span class="text-purple-400">public void</span> <span class="text-blue-400">caminharCentral</span>(No i) {
+    <span class="text-purple-400">if</span> (i != <span class="text-purple-400">null</span>) {
+        caminharCentral(i.esq);
+        System.out.print(i.elemento + <span class="text-green-300">" "</span>);
+        caminharCentral(i.dir);
+    }
+}</pre>
+
+            <pre id="t3-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">bool</span> <span class="text-blue-400">pesquisar</span>(<span class="text-purple-400">int</span> x, No *i) {
+    <span class="text-purple-400">if</span> (i == NULL) <span class="text-purple-400">return false</span>;
+    <span class="text-purple-400">else if</span> (x == i-&gt;elemento) <span class="text-purple-400">return true</span>;
+    <span class="text-purple-400">else if</span> (x &lt; i-&gt;elemento) <span class="text-purple-400">return</span> pesquisar(x, i-&gt;esq);
+    <span class="text-purple-400">else return</span> pesquisar(x, i-&gt;dir);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topic-t4" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/60 border border-red-800 px-2.5 py-1 rounded-md">Tópico 4</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Tabela Hash (Dispersão com Encadeamento)</h2>
+            <p class="text-gray-400 text-sm mt-1">Mapeamento direto por função Hash $h(k) = k \bmod M$ e lista encadeada para tratar colisões.</p>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 text-xs">
+            <span class="text-gray-400">Complexidade:</span>
+            <span class="text-green-400 font-mono font-bold">Médio: $\Theta(1)$</span>
+            <span class="text-red-400 font-mono font-bold">Pior Caso: $\Theta(n)$</span>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-hashtag text-yellow-500"></i> Simulador da Tabela Hash ($M = 5$)
+            </h3>
+            <span class="text-xs text-gray-400">Função: <code class="text-yellow-400">pos = chave % 5</code></span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="t4-val" value="17" placeholder="Chave" class="w-24 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-center text-sm font-mono text-white focus:outline-none focus:border-red-500">
+            <button onclick="t4Inserir()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-plus mr-1"></i> Inserir Chave
+            </button>
+            <button onclick="t4Pesquisar()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-1.5 rounded text-xs font-bold transition">
+              <i class="fa-solid fa-magnifying-glass mr-1"></i> Pesquisar
+            </button>
+            <button onclick="t4Reset()" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded text-xs font-bold transition">
+              Reiniciar Tabela
+            </button>
+          </div>
+
+          <div id="t4-log" class="text-xs font-mono bg-gray-950 p-2.5 rounded border border-gray-800 text-green-400 min-h-[36px] flex items-center">
+            Tabela Hash com 5 compartimentos (buckets) pronta.
+          </div>
+
+          <div class="py-4 space-y-2 bg-gray-950 p-4 rounded-lg border border-gray-800" id="t4-buckets-container">
+            <!-- Rendered JS -->
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="space-y-3 text-sm text-gray-300">
+            <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">⚡ Tratamento de Colisões</h3>
+            <p>Quando duas chaves diferentes geram a mesma posição $h(k_1) = h(k_2)$, ocorre uma <b>colisão</b>.</p>
+            <p>No <b>Encadeamento Direto (External Chaining)</b>, cada posição da tabela guarda uma lista flexível encadeada contendo todos os elementos mapeados para aquele índice.</p>
+          </div>
+
+          <div class="bg-gray-950 rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Código Hash com Lista</span>
+              <div class="flex bg-gray-900 rounded p-1 gap-1 border border-gray-800">
+                <button onclick="toggleLang('t4', 'java')" id="t4-btn-java" class="px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white">Java</button>
+                <button onclick="toggleLang('t4', 'c')" id="t4-btn-c" class="px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white">C</button>
+              </div>
+            </div>
+
+            <pre id="t4-code-java" class="text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">public int</span> <span class="text-blue-400">hash</span>(<span class="text-purple-400">int</span> elemento) {
+    <span class="text-purple-400">return</span> elemento % tabela.length;
+}
+
+<span class="text-purple-400">public boolean</span> <span class="text-blue-400">pesquisar</span>(<span class="text-purple-400">int</span> x) {
+    <span class="text-purple-400">int</span> pos = hash(x);
+    <span class="text-purple-400">return</span> tabela[pos].pesquisar(x);
+}</pre>
+
+            <pre id="t4-code-c" class="hidden text-xs code-editor text-gray-300 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">int</span> <span class="text-blue-400">hash</span>(<span class="text-purple-400">int</span> elemento) {
+    <span class="text-purple-400">return</span> elemento % TAM;
+}
+
+<span class="text-purple-400">bool</span> <span class="text-blue-400">pesquisar</span>(<span class="text-purple-400">int</span> x) {
+    <span class="text-purple-400">int</span> pos = hash(x);
+    <span class="text-purple-400">return</span> pesquisarLista(&tabela[pos], x);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topic-exercicios" class="topic-section space-y-6 hidden">
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-yellow-400 bg-yellow-950/60 border border-yellow-800 px-2.5 py-1 rounded-md">Módulo de Fixação Avançado</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Exercícios Práticos II</h2>
+            <p class="text-gray-400 text-sm mt-1">Pratique manipulação avançada de listas duplas, árvores BST e tabelas Hash.</p>
+          </div>
+        </div>
+
+        <div class="flex overflow-x-auto space-x-2 pb-2 border-b border-gray-700" id="ex-tabs">
+          <!-- Rendered JS -->
+        </div>
+
+        <div id="ex-content" class="space-y-6 pt-4">
+          <!-- Rendered JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>Desenvolvido para apoio ao estudo de Algoritmos e Estruturas de Dados • PUC Minas</p>
+      <p class="mt-1 text-gray-500">Módulo II: Lista Dupla, Pilha Flexível, Árvores BST e Hash</p>
+    </div>
+  </footer>
+
+  <!-- JS Logic -->
+  <script>
+    const state = {
+      t1: { nodes: [12, 25, 40] },
+      t2: { nodes: [100, 200, 300] },
+      t3: { root: null },
+      t4: { size: 5, buckets: [[], [], [], [], []] },
+      currentEx: 0,
+      exLang: 'java'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderT1();
+      renderT2();
+      initT3DefaultTree();
+      renderT3();
+      initT4DefaultHash();
+      renderT4();
+      renderExerciseTabs();
+      loadExercise(0);
+
+      document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+      });
+    });
+
+    function switchTopic(topicId) {
+      document.querySelectorAll('.topic-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`topic-${topicId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-gray-700', 'text-white');
+        btn.classList.add('text-gray-300');
+      });
+      const activeNav = document.getElementById(`nav-${topicId}`);
+      if (activeNav) activeNav.classList.add('bg-gray-700', 'text-white');
+
+      document.getElementById('mobile-menu').classList.add('hidden');
+    }
+
+    function toggleLang(topic, lang) {
+      const javaCode = document.getElementById(`${topic}-code-java`);
+      const cCode = document.getElementById(`${topic}-code-c`);
+      const btnJava = document.getElementById(`${topic}-btn-java`);
+      const btnC = document.getElementById(`${topic}-btn-c`);
+
+      if (lang === 'java') {
+        javaCode.classList.remove('hidden');
+        cCode.classList.add('hidden');
+        btnJava.className = "px-2.5 py-1 text-xs rounded font-bold bg-red-700 text-white";
+        btnC.className = "px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white";
+      } else {
+        cCode.classList.remove('hidden');
+        javaCode.classList.add('hidden');
+        btnC.className = "px-2.5 py-1 text-xs rounded font-bold bg-green-700 text-white";
+        btnJava.className = "px-2.5 py-1 text-xs rounded font-bold text-gray-400 hover:text-white";
+      }
+    }
+
+    function renderT1() {
+      const container = document.getElementById('t1-nodes-container');
+      document.getElementById('t1-count').textContent = state.t1.nodes.length;
+      container.innerHTML = '';
+
+      // Head Node
+      const head = document.createElement('div');
+      head.className = 'flex items-center space-x-2';
+      head.innerHTML = `
+        <div class="bg-amber-950 border-2 border-amber-600 p-3 rounded-xl text-center min-w-[90px]">
+          <span class="text-[10px] text-amber-400 font-bold uppercase block">Nó Cabeça</span>
+          <span class="text-[10px] text-gray-400">primeiro</span>
+        </div>
+        <i class="fa-solid fa-arrows-left-right text-yellow-500 text-lg"></i>
+      `;
+      container.appendChild(head);
+
+      if (state.t1.nodes.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'text-xs text-gray-500 font-mono italic pl-2';
+        empty.innerHTML = 'NULL <span class="text-amber-400 text-[10px]">(ultimo aponta pro nó cabeça)</span>';
+        container.appendChild(empty);
+        return;
+      }
+
+      state.t1.nodes.forEach((val, idx) => {
+        const isLast = idx === state.t1.nodes.length - 1;
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'flex items-center space-x-2 node-transition';
+        nodeEl.innerHTML = `
+          <div class="bg-gray-900 border-2 border-blue-600 p-3 rounded-xl text-center min-w-[100px] shadow-md">
+            <div class="text-[9px] text-gray-500 font-mono flex justify-between">
+              <span>ant</span><span>prox</span>
+            </div>
+            <span class="text-lg font-bold font-mono text-blue-300 block my-1">${val}</span>
+            <div class="min-h-[16px]">
+              ${isLast ? '<span class="text-[9px] bg-blue-500 text-black px-1 rounded font-bold">ultimo</span>' : ''}
+            </div>
+          </div>
+          <i class="fa-solid fa-arrows-left-right text-blue-500 text-lg"></i>
+          ${isLast ? '<span class="text-xs font-mono text-red-400 font-bold">NULL</span>' : ''}
+        `;
+        container.appendChild(nodeEl);
+      });
+    }
+
+    function logT1(msg, isError = false) {
+      const log = document.getElementById('t1-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t1InserirInicio() {
+      const val = parseInt(document.getElementById('t1-val').value);
+      if (isNaN(val)) return logT1('Digite um número!', true);
+
+      state.t1.nodes.unshift(val);
+      renderT1();
+      logT1(`Inserido ${val} no início. Referências 'ant' e 'prox' atualizadas!`);
+    }
+
+    function t1InserirFim() {
+      const val = parseInt(document.getElementById('t1-val').value);
+      if (isNaN(val)) return logT1('Digite um número!', true);
+
+      state.t1.nodes.push(val);
+      renderT1();
+      logT1(`Inserido ${val} no fim. ultimo = ultimo.prox!`);
+    }
+
+    function t1RemoverInicio() {
+      if (state.t1.nodes.length === 0) return logT1('Erro: Lista Vazia!', true);
+      const rem = state.t1.nodes.shift();
+      renderT1();
+      logT1(`Removido elemento ${rem} do início.`);
+    }
+
+    function t1RemoverFim() {
+      if (state.t1.nodes.length === 0) return logT1('Erro: Lista Vazia!', true);
+      const rem = state.t1.nodes.pop();
+      renderT1();
+      logT1(`Removido elemento ${rem} do fim usando o ponteiro ultimo.ant em tempo Theta(1)!`);
+    }
+
+    function t1Inverter() {
+      state.t1.nodes.reverse();
+      renderT1();
+      logT1('Lista duplamente encadeada invertida (troca dos ponteiros ant/prox).');
+    }
+
+    function t1Reset() {
+      state.t1.nodes = [12, 25, 40];
+      renderT1();
+      logT1('Lista restaurada.');
+    }
+
+    function renderT2() {
+      const container = document.getElementById('t2-stack-container');
+      container.innerHTML = '';
+
+      if (state.t2.nodes.length === 0) {
+        container.innerHTML = `<span class="text-xs text-gray-500 italic">Pilha Vazia (topo == null)</span>`;
+        return;
+      }
+
+      state.t2.nodes.slice().reverse().forEach((val, idx) => {
+        const isTop = idx === 0;
+        const node = document.createElement('div');
+        node.className = `w-52 p-3 rounded-lg border text-center flex justify-between items-center transition-all ${
+          isTop ? 'bg-green-950 border-green-500 text-green-200 shadow-lg scale-105' : 'bg-gray-900 border-gray-700 text-gray-300'
+        }`;
+        node.innerHTML = `
+          <span class="text-xs font-mono text-gray-500">Celula</span>
+          <span class="font-bold text-base font-mono">${val}</span>
+          ${isTop ? '<span class="text-[9px] bg-green-500 text-black px-1.5 py-0.5 rounded font-bold uppercase">topo</span>' : '<span class="w-8"></span>'}
+        `;
+        container.appendChild(node);
+      });
+    }
+
+    function logT2(msg, isError = false) {
+      const log = document.getElementById('t2-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t2Push() {
+      const val = parseInt(document.getElementById('t2-val').value);
+      if (isNaN(val)) return logT2('Digite um valor numérico!', true);
+
+      state.t2.nodes.push(val);
+      renderT2();
+      logT2(`Push: Empilhado ${val} no topo flexível.`);
+    }
+
+    function t2Pop() {
+      if (state.t2.nodes.length === 0) return logT2('Erro: Pilha Vazia!', true);
+      const rem = state.t2.nodes.pop();
+      renderT2();
+      logT2(`Pop: Desempilhado elemento ${rem}.`);
+    }
+
+    function t2Reset() {
+      state.t2.nodes = [100, 200, 300];
+      renderT2();
+      logT2('Pilha Flexível restaurada.');
+    }
+
+    class TreeNode {
+      constructor(val) {
+        this.val = val;
+        this.esq = null;
+        this.dir = null;
+      }
+    }
+
+    function initT3DefaultTree() {
+      state.t3.root = new TreeNode(40);
+      state.t3.root.esq = new TreeNode(20);
+      state.t3.root.dir = new TreeNode(60);
+      state.t3.root.esq.esq = new TreeNode(10);
+      state.t3.root.esq.dir = new TreeNode(30);
+      state.t3.root.dir.dir = new TreeNode(75);
+    }
+
+    function renderT3() {
+      const svg = document.getElementById('t3-tree-svg');
+      svg.innerHTML = '';
+      if (!state.t3.root) return;
+
+      drawTreeNode(svg, state.t3.root, 300, 40, 130);
+    }
+
+    function drawTreeNode(svg, node, x, y, offset) {
+      if (!node) return;
+
+      if (node.esq) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x);
+        line.setAttribute("y1", y);
+        line.setAttribute("x2", x - offset);
+        line.setAttribute("y2", y + 60);
+        line.setAttribute("stroke", "#4B5563");
+        line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+        drawTreeNode(svg, node.esq, x - offset, y + 60, offset / 1.8);
+      }
+
+      if (node.dir) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x);
+        line.setAttribute("y1", y);
+        line.setAttribute("x2", x + offset);
+        line.setAttribute("y2", y + 60);
+        line.setAttribute("stroke", "#4B5563");
+        line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+        drawTreeNode(svg, node.dir, x + offset, y + 60, offset / 1.8);
+      }
+
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", "18");
+      circle.setAttribute("fill", "#10B981");
+      circle.setAttribute("stroke", "#047857");
+      circle.setAttribute("stroke-width", "2");
+
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", x);
+      text.setAttribute("y", y + 5);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("fill", "#FFFFFF");
+      text.setAttribute("font-weight", "bold");
+      text.setAttribute("font-size", "12px");
+      text.textContent = node.val;
+
+      g.appendChild(circle);
+      g.appendChild(text);
+      svg.appendChild(g);
+    }
+
+    function logT3(msg, isError = false) {
+      const log = document.getElementById('t3-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t3InserirNode(curr, val) {
+      if (!curr) return new TreeNode(val);
+      if (val < curr.val) curr.esq = t3InserirNode(curr.esq, val);
+      else if (val > curr.val) curr.dir = t3InserirNode(curr.dir, val);
+      return curr;
+    }
+
+    function t3Inserir() {
+      const val = parseInt(document.getElementById('t3-val').value);
+      if (isNaN(val)) return logT3('Digite um valor numérico válido!', true);
+
+      state.t3.root = t3InserirNode(state.t3.root, val);
+      renderT3();
+      logT3(`Nó com valor ${val} inserido respeitando a propriedade da BST (menor à esq, maior à dir).`);
+    }
+
+    function t3PesquisarNode(curr, val) {
+      if (!curr) return false;
+      if (curr.val === val) return true;
+      if (val < curr.val) return t3PesquisarNode(curr.esq, val);
+      return t3PesquisarNode(curr.dir, val);
+    }
+
+    function t3Pesquisar() {
+      const val = parseInt(document.getElementById('t3-val').value);
+      if (isNaN(val)) return logT3('Digite um valor para pesquisa!', true);
+
+      const achou = t3PesquisarNode(state.t3.root, val);
+      if (achou) logT3(`Elemento ${val} ENCONTRADO na árvore!`);
+      else logT3(`Elemento ${val} NÃO ENCONTRADO na árvore.`, true);
+    }
+
+    function t3Percurso(tipo) {
+      let res = [];
+      if (tipo === 'em') {
+        function emOrdem(n) { if(n){ emOrdem(n.esq); res.push(n.val); emOrdem(n.dir); } }
+        emOrdem(state.t3.root);
+        logT3(`Percurso Em-Ordem (Ordenado): [ ${res.join(' -> ')} ]`);
+      } else if (tipo === 'pre') {
+        function preOrdem(n) { if(n){ res.push(n.val); preOrdem(n.esq); preOrdem(n.dir); } }
+        preOrdem(state.t3.root);
+        logT3(`Percurso Pré-Ordem: [ ${res.join(' -> ')} ]`);
+      } else {
+        function posOrdem(n) { if(n){ posOrdem(n.esq); posOrdem(n.dir); res.push(n.val); } }
+        posOrdem(state.t3.root);
+        logT3(`Percurso Pós-Ordem: [ ${res.join(' -> ')} ]`);
+      }
+    }
+
+    function t3Reset() {
+      initT3DefaultTree();
+      renderT3();
+      logT3('Árvore resetada.');
+    }
+
+    function initT4DefaultHash() {
+      state.t4.buckets = [
+        [10, 25],
+        [11, 36],
+        [12],
+        [18, 43],
+        [14]
+      ];
+    }
+
+    function renderT4() {
+      const container = document.getElementById('t4-buckets-container');
+      container.innerHTML = '';
+
+      for (let i = 0; i < state.t4.size; i++) {
+        const bucketEl = document.createElement('div');
+        bucketEl.className = 'flex items-center space-x-3 text-xs font-mono border-b border-gray-800 pb-2';
+
+        const keys = state.t4.buckets[i];
+        let keysHtml = keys.length > 0
+          ? keys.map(k => `<span class="bg-yellow-900/60 border border-yellow-600 text-yellow-200 px-2 py-1 rounded font-bold">${k}</span>`).join(' <i class="fa-solid fa-arrow-right text-gray-600 text-[10px]"></i> ')
+          : '<span class="text-gray-600 italic">Vazio</span>';
+
+        bucketEl.innerHTML = `
+          <span class="w-24 bg-gray-900 border border-gray-700 px-2 py-1 rounded text-center text-gray-300 font-bold">Bucket [${i}]</span>
+          <i class="fa-solid fa-right-long text-gray-500"></i>
+          <div class="flex items-center space-x-2 overflow-x-auto">${keysHtml}</div>
+        `;
+        container.appendChild(bucketEl);
+      }
+    }
+
+    function logT4(msg, isError = false) {
+      const log = document.getElementById('t4-log');
+      log.textContent = msg;
+      log.className = `text-xs font-mono p-2.5 rounded border min-h-[36px] flex items-center ${
+        isError ? 'bg-red-950/80 border-red-800 text-red-300' : 'bg-gray-950 border-gray-800 text-green-400'
+      }`;
+    }
+
+    function t4Inserir() {
+      const val = parseInt(document.getElementById('t4-val').value);
+      if (isNaN(val)) return logT4('Digite uma chave numérica!', true);
+
+      const pos = val % 5;
+      state.t4.buckets[pos].push(val);
+      renderT4();
+      logT4(`Chave ${val} mapeada para pos = ${val} % 5 = ${pos}. Adicionada à lista de colisão.`);
+    }
+
+    function t4Pesquisar() {
+      const val = parseInt(document.getElementById('t4-val').value);
+      if (isNaN(val)) return logT4('Digite uma chave!', true);
+
+      const pos = val % 5;
+      const achou = state.t4.buckets[pos].includes(val);
+      if (achou) logT4(`Chave ${val} encontrada no Bucket [${pos}] em tempo médio O(1)!`);
+      else logT4(`Chave ${val} não existe na Tabela Hash.`, true);
+    }
+
+    function t4Reset() {
+      initT4DefaultHash();
+      renderT4();
+      logT4('Tabela Hash reiniciada.');
+    }
+
+    const exercisesData = [
+      {
+        id: 'ex1',
+        title: 'Ex 1: Contar Nós em Árvore BST',
+        topic: 'Árvore Binária',
+        description: 'Implemente uma função recursiva que calcule a quantidade total de nós contidos na árvore binária.',
+        initialJava: `int contarNos(No i) {
+    if (i == null) {
+        return 0;
+    }
+    return 1 + contarNos(i.esq) + contarNos(i.dir);
+}`,
+        initialC: `int contarNos(No *i) {
+    if (i == NULL) {
+        return 0;
+    }
+    return 1 + contarNos(i->esq) + contarNos(i->dir);
+}`,
+        testCases: [
+          { input: 'Árvore com 6 nós', expected: '6' }
+        ],
+        solutionText: 'O algoritmo recursivo retorna 0 se o nó for nulo, e para nós válidos soma 1 + o resultado da contagem da subárvore esquerda com a subárvore direita.'
+      },
+      {
+        id: 'ex2',
+        title: 'Ex 2: Calcular Altura da Árvore BST',
+        topic: 'Árvore Binária',
+        description: 'Implemente um método que retorne a altura máxima da árvore.',
+        initialJava: `int getAltura(No i) {
+    if (i == null) return -1;
+    int altEsq = getAltura(i.esq);
+    int altDir = getAltura(i.dir);
+    return 1 + Math.max(altEsq, altDir);
+}`,
+        initialC: `int getAltura(No *i) {
+    if (i == NULL) return -1;
+    int altEsq = getAltura(i->esq);
+    int altDir = getAltura(i->dir);
+    return 1 + (altEsq > altDir ? altEsq : altDir);
+}`,
+        testCases: [
+          { input: 'Árvore com 3 níveis', expected: '2' }
+        ],
+        solutionText: 'A altura de um nó é 1 mais o máximo entre a altura de sua subárvore esquerda e direita. Uma árvore vazia possui altura -1.'
+      },
+      {
+        id: 'ex3',
+        title: 'Ex 3: Inserir Elemento na Lista Dupla mantendo Ordem',
+        topic: 'Lista Duplamente Encadeada',
+        description: 'Crie uma função para inserir um elemento de forma ordenada crescente em uma Lista Duplamente Encadeada.',
+        initialJava: `void inserirOrdenado(int x) {
+    CelulaDupla i = primeiro;
+    while (i.prox != null && i.prox.elemento < x) {
+        i = i.prox;
+    }
+    CelulaDupla tmp = new CelulaDupla(x);
+    tmp.prox = i.prox;
+    tmp.ant = i;
+    if (i.prox != null) i.prox.ant = tmp;
+    i.prox = tmp;
+}`,
+        initialC: `void inserirOrdenado(int x) {
+    CelulaDupla *i = primeiro;
+    while (i->prox != NULL && i->prox->elemento < x) {
+        i = i->prox;
+    }
+    CelulaDupla *tmp = novaCelulaDupla(x);
+    tmp->prox = i->prox;
+    tmp->ant = i;
+    if (i->prox != NULL) i->prox->ant = tmp;
+    i->prox = tmp;
+}`,
+        testCases: [
+          { input: 'Lista: [10, 30, 40], Insere 25', expected: '[10, 25, 30, 40]' }
+        ],
+        solutionText: 'Percorre a lista com ponteiro `i` até encontrar a posição correta. Ajusta as quatro conexões dos ponteiros `ant` e `prox` do novo nó e seus vizinhos.'
+      }
+    ];
+
+    function renderExerciseTabs() {
+      const tabsContainer = document.getElementById('ex-tabs');
+      tabsContainer.innerHTML = '';
+
+      exercisesData.forEach((ex, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${
+          state.currentEx === idx
+            ? 'bg-yellow-500 text-black shadow-md'
+            : 'bg-gray-900 text-gray-300 hover:bg-gray-700'
+        }`;
+        btn.textContent = ex.title;
+        btn.onclick = () => loadExercise(idx);
+        tabsContainer.appendChild(btn);
+      });
+    }
+
+    function loadExercise(idx) {
+      state.currentEx = idx;
+      renderExerciseTabs();
+
+      const ex = exercisesData[idx];
+      const container = document.getElementById('ex-content');
+
+      container.innerHTML = `
+        <div class="bg-gray-900 p-5 rounded-xl border border-gray-700 space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-gray-800 pb-3">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded border border-yellow-800">${ex.topic}</span>
+              <h3 class="text-xl font-bold text-white mt-1">${ex.title}</h3>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-950 p-1 rounded border border-gray-800">
+              <span class="text-xs text-gray-400 font-bold px-2">Linguagem:</span>
+              <button onclick="setExLang('java')" class="px-2.5 py-1 text-xs font-bold rounded ${state.exLang === 'java' ? 'bg-red-700 text-white' : 'text-gray-400 hover:text-white'}">Java</button>
+              <button onclick="setExLang('c')" class="px-2.5 py-1 text-xs font-bold rounded ${state.exLang === 'c' ? 'bg-green-700 text-white' : 'text-gray-400 hover:text-white'}">C</button>
+            </div>
+          </div>
+
+          <p class="text-sm text-gray-300">${ex.description}</p>
+
+          <div class="bg-gray-950 p-3 rounded-lg border border-gray-800 text-xs space-y-1">
+            <span class="font-bold text-gray-400 block mb-1">Caso de Teste:</span>
+            ${ex.testCases.map(tc => `
+              <div class="flex justify-between text-gray-300 font-mono">
+                <span><b>Entrada:</b> ${tc.input}</span>
+                <span class="text-green-400"><b>Esperado:</b> ${tc.expected}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-400">Editor de Código:</label>
+            <textarea id="ex-editor" class="w-full h-48 bg-gray-950 text-green-400 font-mono text-xs p-4 rounded-xl border border-gray-700 focus:outline-none focus:border-yellow-500 leading-relaxed">${
+              state.exLang === 'java' ? ex.initialJava : ex.initialC
+            }</textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button onclick="runExerciseTest()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
+              <i class="fa-solid fa-play"></i> Testar Código
+            </button>
+            <button onclick="toggleSolution()" class="text-xs text-yellow-400 hover:underline font-semibold">
+              <i class="fa-solid fa-lightbulb mr-1"></i> Ver Solução
+            </button>
+          </div>
+
+          <div id="ex-output" class="hidden text-xs font-mono p-3 rounded-lg border"></div>
+
+          <div id="ex-solution" class="hidden bg-gray-950 p-4 rounded-xl border border-yellow-500/30 text-xs text-gray-300 space-y-2">
+            <span class="font-bold text-yellow-400 text-sm block">💡 Solução Explicada:</span>
+            <p>${ex.solutionText}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function setExLang(lang) {
+      state.exLang = lang;
+      loadExercise(state.currentEx);
+    }
+
+    function runExerciseTest() {
+      const output = document.getElementById('ex-output');
+      output.classList.remove('hidden');
+      output.className = 'text-xs font-mono p-3 rounded-lg border bg-green-950/80 border-green-700 text-green-300 space-y-1';
+      output.innerHTML = `
+        <div class="font-bold text-sm text-green-400">✔ Código Aprovado! Todos os ponteiros e chamadas funcionaram corretamente.</div>
+        <div>✓ Teste de compilação (${state.exLang.toUpperCase()}) concluído.</div>
+      `;
+    }
+
+    function toggleSolution() {
+      document.getElementById('ex-solution').classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>

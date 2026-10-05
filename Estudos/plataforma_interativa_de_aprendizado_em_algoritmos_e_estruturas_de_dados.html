@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma Interativa de Aprendizado em Algoritmos e Estruturas de Dados</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Font & Custom Minimal Styling -->
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #1E293B;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 320px;
+      max-height: 400px;
+    }
+    
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 360px;
+      }
+    }
+
+    .node-box {
+      transition: all 0.3s ease;
+    }
+
+    /* Custom Scrollbar for smooth UX */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+
+  <!-- Chosen Palette: Warm Neutral Academic (Cream #FAF8F5, Slate #1E293B, Blue #2563EB, Emerald #059669) -->
+  <!-- Application Structure Plan: Interactive 5-tab pedagogical dashboard translating the report's conceptual modules (Search, Linear Memory, Sorting/Parallelism, Prompt Engineering) into dynamic visual tools, step-by-step simulators, interactive charts, and prompt generation utilities for maximum educational engagement. -->
+  <!-- Visualization & Content Choices:
+       1. Algorithmic Complexity Curves -> Chart.js Line Chart -> Interactive scaling comparison -> Standard asymptotic comparison.
+       2. Search Simulator -> HTML/CSS Dynamic Grid -> Interactive array step-through -> Demonstrates O(n) vs O(log n) search space reduction.
+       3. Stack/Queue State Machine -> Custom HTML DOM Nodes + Unicode arrows -> Dynamic push/pop/enqueue/dequeue -> Visualizing LIFO/FIFO & memory pointers.
+       4. Speedup / Amdahl's Law -> Chart.js Line Chart + Sliders -> Dynamic curve updating -> Demonstrating parallel scalability limits.
+       5. Adaptive Prompt Generator -> Interactive form controls -> Dynamic prompt composition -> Practical operationalization of Section 4 guidelines.
+  -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- TOP HEADER / BRANDING -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-sm">
+          &lt;/&gt;
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 leading-tight">Arquitetura Pedagógica & Algoritmos</h1>
+          <p class="text-xs text-slate-500">Sistema Interativo de Tutoria e Análise de Estruturas de Dados</p>
+        </div>
+      </div>
+
+      <!-- MAIN NAVIGATION TABS -->
+      <nav class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl text-xs sm:text-sm font-medium">
+        <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn px-3 py-1.5 rounded-lg bg-white shadow-sm text-blue-700 font-semibold transition">
+          Visão Geral
+        </button>
+        <button onclick="switchTab('search')" id="nav-search" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          Pesquisa
+        </button>
+        <button onclick="switchTab('linear')" id="nav-linear" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          Estruturas Lineares
+        </button>
+        <button onclick="switchTab('sorting')" id="nav-sorting" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          Ordenação & Paralelismo
+        </button>
+        <button onclick="switchTab('prompts')" id="nav-prompts" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          Engenharia de Prompts
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+    <!-- SECTION 1: VISÃO GERAL & DASHBOARD DE COMPLEXIDADE -->
+    <section id="sec-overview" class="tab-content space-y-6">
+      <!-- Introductory Paragraph -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Fundamentos de Análise e Métricas de Desempenho</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Esta seção apresenta o panorama geral da eficiência algorítmica, fornecendo o arcabouço teórico necessário para mensurar e comparar o tempo de execução e a escalabilidade espacial de rotinas computacionais em Notação Assintótica $O$ (Big-O). Utilize os seletores interativos para explorar como diferentes classes de complexidade reagem ao crescimento da entrada de dados ($N$).
+        </p>
+      </div>
+
+      <!-- Overview Grid Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Excelente</span>
+          <div class="mt-2">
+            <span class="text-2xl font-bold text-emerald-600">O(1) & O(log n)</span>
+            <p class="text-xs text-slate-500 mt-1">Acesso direto / Pesquisa Binária e Árvores Equilibradas.</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Aceitável / Linear</span>
+          <div class="mt-2">
+            <span class="text-2xl font-bold text-blue-600">O(n)</span>
+            <p class="text-xs text-slate-500 mt-1">Varredura Sequencial e Travessia em Listas Encadeadas.</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Eficiente para Ordenação</span>
+          <div class="mt-2">
+            <span class="text-2xl font-bold text-indigo-600">O(n log n)</span>
+            <p class="text-xs text-slate-500 mt-1">Merge Sort, Quick Sort (médio) e Heap Sort.</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Quadrático / Ineficiente</span>
+          <div class="mt-2">
+            <span class="text-2xl font-bold text-amber-600">O(n²)</span>
+            <p class="text-xs text-slate-500 mt-1">Bubble Sort, Selection Sort e Insertion Sort.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Chart Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-slate-800">Comparador de Curvas de Complexidade Assintótica</h3>
+              <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">Gráfico Interativo</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              Ajuste o valor máximo de elementos ($N$) para visualizar a divergência drástica do número de operações necessárias entre algoritmos de diferentes classes.
+            </p>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartComplexity"></canvas>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Controle de Entrada:</span>
+            <div class="flex items-center gap-3">
+              <label for="rangeN" class="font-medium text-slate-700">Tamanho N: <span id="valN" class="font-bold text-blue-600">32</span></label>
+              <input type="range" id="rangeN" min="8" max="100" value="32" step="4" class="w-32 accent-blue-600" oninput="updateComplexityChart(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 mb-3">Síntese dos Módulos Educacionais</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              Este sistema organiza o conhecimento do relatório em 3 pilares fundamentais para treinamento computacional e tutoria adaptativa:
+            </p>
+            <ul class="space-y-3 text-xs text-slate-700">
+              <li class="flex items-start gap-2">
+                <span class="text-blue-600 font-bold">1.</span>
+                <span><strong>Pesquisa de Dados:</strong> Contraste entre busca linear irrestrita $O(n)$ e busca binária ordenada $O(\log n)$.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-600 font-bold">2.</span>
+                <span><strong>Estruturas Lineares:</strong> Alocação dinâmica na Heap, indireção via ponteiros, e pilhas/filas em tempo $O(1)$.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-600 font-bold">3.</span>
+                <span><strong>Ordenação & Paralelismo:</strong> Métodos sequenciais, redes de comparação e métricas de Speedup e Eficiência.</span>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-700 block mb-1">Dica de Navegação</span>
+            <p class="text-xs text-slate-500">
+              Utilize o menu superior para alternar entre os simuladores práticos de busca, estados de memória de pilhas e filas, calculadoras de paralelismo e o gerador de prompts pedagógicos.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: METODOS DE PESQUISA -->
+    <section id="sec-search" class="tab-content hidden space-y-6">
+      <!-- Introductory Paragraph -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Métodos de Pesquisa: Sequencial vs. Binária</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          A recuperação de dados é uma das operações operacionais mais elementares da computação. Enquanto a pesquisa sequencial varre a coleção elemento a elemento sem exigências prévias, a pesquisa binária aproveita a ordenação dos dados para dividir o espaço de busca pela metade a cada passo, alcançando eficiência logarítmica. Interaja com o simulador abaixo para visualizar o processo passo a passo.
+        </p>
+      </div>
+
+      <!-- Comparative Table from Report -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+          <h3 class="font-bold text-slate-800">Tabela Comparativa de Algoritmos de Pesquisa</h3>
+          <span class="text-xs text-slate-400">Fonte: Módulo 1 do Relatório</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3 sm:p-4">Parâmetro de Comparação</th>
+                <th class="p-3 sm:p-4">Pesquisa Sequencial</th>
+                <th class="p-3 sm:p-4">Pesquisa Binária</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Exigência de Ordenação</td>
+                <td class="p-3 sm:p-4">Não requer ordenação prévia</td>
+                <td class="p-3 sm:p-4 text-blue-700 font-medium">Exige dados estritamente ordenados</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Estrutura de Suporte</td>
+                <td class="p-3 sm:p-4">Arranjos e Listas Encadeadas</td>
+                <td class="p-3 sm:p-4">Arranjos de Acesso Aleatório / Direto</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Melhor Caso</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) (Primeiro elemento)</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) (Elemento central)</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Caso Médio</td>
+                <td class="p-3 sm:p-4 text-amber-600 font-semibold">O(n) [(n+1)/2 comparações]</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(log n)</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Pior Caso</td>
+                <td class="p-3 sm:p-4 text-red-600 font-semibold">O(n)</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(log n)</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Complexidade Espacial Auxiliar</td>
+                <td class="p-3 sm:p-4">O(1)</td>
+                <td class="p-3 sm:p-4">O(1) Iterativo / O(log n) Recursivo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Interactive Search Step Simulator -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Simulador de Execução em Tempo Real</h3>
+            <p class="text-xs text-slate-500">Escolha um número e compare os passos tomados pelos algoritmos em uma lista ordenada de 16 elementos.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <label for="targetInput" class="text-xs font-semibold text-slate-700">Chave de Busca (1 a 99):</label>
+            <input type="number" id="targetInput" value="73" min="1" max="99" class="w-20 px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-bold text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="runSearchSimulation()" class="px-4 py-1.5 bg-blue-600 text-white font-medium text-xs rounded-lg hover:bg-blue-700 transition shadow-sm">
+              Simular Busca
+            </button>
+          </div>
+        </div>
+
+        <!-- Array Visualization Display -->
+        <div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Vetor Ordenado de Entrada</span>
+          <div id="arrayDisplay" class="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-16 gap-2">
+            <!-- Dynamically Populated Array Cells -->
+          </div>
+        </div>
+
+        <!-- Simulation Logs comparison -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold text-slate-800 text-sm">Pesquisa Sequencial</span>
+              <span id="seqSteps" class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800">0 Comparações</span>
+            </div>
+            <p id="seqLog" class="text-xs text-slate-600 min-h-[60px] leading-relaxed">
+              Aguardando simulação... Clique em 'Simular Busca' para testar.
+            </p>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold text-slate-800 text-sm">Pesquisa Binária</span>
+              <span id="binSteps" class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">0 Comparações</span>
+            </div>
+            <p id="binLog" class="text-xs text-slate-600 min-h-[60px] leading-relaxed">
+              Aguardando simulação... Clique em 'Simular Busca' para testar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 3: ESTRUTURAS DE DADOS LINEARES -->
+    <section id="sec-linear" class="tab-content hidden space-y-6">
+      <!-- Introductory Paragraph -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Estruturas de Dados Lineares e Memória Dinâmica</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          O gerenciamento dinâmico na Heap via ponteiros possibilita a criação de coleções flexíveis que expandem e contraem em tempo de execução, superando a rigidez dos arranjos estáticos. Esta seção analisa o funcionamento das disciplinas de acesso LIFO (Pilha) e FIFO (Fila), detalhando o controle por células autorreferenciáveis e prevenindo falhas críticas como vazamentos de memória e acessos inválidos (*segmentation fault*).
+        </p>
+      </div>
+
+      <!-- Linear Comparison Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+          <h3 class="font-bold text-slate-800">Propriedades Estruturais: Pilhas, Filas e Arranjos</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3 sm:p-4">Propriedade</th>
+                <th class="p-3 sm:p-4">Pilha Encadeada</th>
+                <th class="p-3 sm:p-4">Fila Encadeada</th>
+                <th class="p-3 sm:p-4">Arranjo Estático</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Disciplina de Acesso</td>
+                <td class="p-3 sm:p-4 text-blue-700 font-semibold">LIFO (Last-In, First-Out)</td>
+                <td class="p-3 sm:p-4 text-indigo-700 font-semibold">FIFO (First-In, First-Out)</td>
+                <td class="p-3 sm:p-4">Acesso Direto via Índice [i]</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Inserção</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) no Topo</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) no Fim (Tail)</td>
+                <td class="p-3 sm:p-4">O(1) no final (se houver vaga)</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Remoção</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) no Topo</td>
+                <td class="p-3 sm:p-4 text-emerald-600 font-semibold">O(1) no Início (Head)</td>
+                <td class="p-3 sm:p-4 text-red-600">O(n) (Requer deslocamentos)</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Dimensionamento</td>
+                <td class="p-3 sm:p-4">Dinâmico na Heap</td>
+                <td class="p-3 sm:p-4">Dinâmico na Heap</td>
+                <td class="p-3 sm:p-4">Estático no tempo de compilação</td>
+              </tr>
+              <tr>
+                <td class="p-3 sm:p-4 font-medium text-slate-800">Sobrecarga (Overhead)</td>
+                <td class="p-3 sm:p-4">Ponteiro por elemento</td>
+                <td class="p-3 sm:p-4">Ponteiro por elemento</td>
+                <td class="p-3 sm:p-4 font-semibold text-emerald-600">Sem ponteiros adicionais</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Interactive Dynamic Memory Simulator (Stack & Queue) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- PILHA INTERATIVA (STACK) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-slate-800 text-lg">Pilha Encadeada (LIFO)</h3>
+              <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-1 rounded-full">Controle: Topo</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              As operações de PUSH e POP atuam estritamente sobre o ponteiro do Topo, garantindo tempo constante $O(1)$.
+            </p>
+
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="stackInput" placeholder="Valor (ex: A, 42)" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button onclick="pushStack()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition">PUSH</button>
+              <button onclick="popStack()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300 transition">POP</button>
+            </div>
+
+            <!-- Visual Memory Container -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 min-h-[220px] flex flex-col items-center justify-end gap-2" id="stackVisual">
+              <!-- Stack nodes rendered dynamically -->
+            </div>
+          </div>
+          <p id="stackStatus" class="text-xs text-slate-500 mt-3 text-center italic">Pilha Vazia (Topo = NULL)</p>
+        </div>
+
+        <!-- FILA INTERATIVA (QUEUE) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-slate-800 text-lg">Fila Encadeada (FIFO)</h3>
+              <span class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-full">Duplo Ponteiro: Início & Fim</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              Enfileirar adiciona ao Fim (*Tail*), enquanto desenfileirar remove do Início (*Head*), mantendo eficiência $O(1)$.
+            </p>
+
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="queueInput" placeholder="Valor (ex: Job1, 99)" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <button onclick="enqueueQueue()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">ENQUEUE</button>
+              <button onclick="dequeueQueue()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300 transition">DEQUEUE</button>
+            </div>
+
+            <!-- Visual Memory Container -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 min-h-[220px] flex items-center justify-start gap-2 overflow-x-auto" id="queueVisual">
+              <!-- Queue nodes rendered dynamically -->
+            </div>
+          </div>
+          <p id="queueStatus" class="text-xs text-slate-500 mt-3 text-center italic">Fila Vazia (Início = NULL, Fim = NULL)</p>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 4: ALGORITMOS DE ORDENAÇÃO E PARALELISMO -->
+    <section id="sec-sorting" class="tab-content hidden space-y-6">
+      <!-- Introductory Paragraph -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Algoritmos de Ordenação Sequenciais e Paralelos</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          A ordenação organiza elementos conforme uma relação de ordem total. Enquanto métodos quadráticos simples ($O(n^2)$) atendem a pequenos volumes, algoritmos logarítmicos ($O(n \log n)$) baseados em Divisão e Conquista dominam cenários complexos. Para supercomputação e dados massivos, estratégias paralelas exploram múltiplos núcleos, com ganho limitado pelo gargalo de sincronização expresso pela **Lei de Amdahl**.
+        </p>
+      </div>
+
+      <!-- Sorting Algorithms Grid Matrix -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+          <h3 class="text-lg font-bold text-slate-800">Catálogo de Algoritmos e Estratégias</h3>
+          <div class="flex gap-2">
+            <button onclick="filterSorting('all')" class="sort-filter-btn px-2.5 py-1 text-xs rounded bg-blue-600 text-white font-medium">Todos</button>
+            <button onclick="filterSorting('n2')" class="sort-filter-btn px-2.5 py-1 text-xs rounded bg-slate-100 text-slate-600 hover:bg-slate-200">O(n²)</button>
+            <button onclick="filterSorting('nlogn')" class="sort-filter-btn px-2.5 py-1 text-xs rounded bg-slate-100 text-slate-600 hover:bg-slate-200">O(n log n)</button>
+            <button onclick="filterSorting('parallel')" class="sort-filter-btn px-2.5 py-1 text-xs rounded bg-slate-100 text-slate-600 hover:bg-slate-200">Paralelo</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="sortingMatrix">
+          <!-- Card Bubble Sort -->
+          <div class="sort-card n2 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Bubble Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">O(n²)</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Trocas diretas entre vizinhos. Ineficiente para grandes listas. Estável.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Paralelização: Odd-Even Transposition</span>
+          </div>
+
+          <!-- Card Insertion Sort -->
+          <div class="sort-card n2 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Insertion Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">O(n²)</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Inserção direta. Desempenho linear O(n) excelente em coleções quase ordenadas.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Paralelização: Blocos / Pipelines</span>
+          </div>
+
+          <!-- Card Merge Sort -->
+          <div class="sort-card nlogn bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Merge Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">O(n log n)</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Divisão e Conquista. Intercalação estável que garante tempo assintótico perfeito em todos os cenários.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Memória Auxiliar: O(n)</span>
+          </div>
+
+          <!-- Card Quick Sort -->
+          <div class="sort-card nlogn bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Quick Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">O(n log n)</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Particionamento em torno de pivô. Desempenho prático sequencial superior. In-place.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Pior caso: O(n²) se pivô inadequado</span>
+          </div>
+
+          <!-- Card Bitonic Sort -->
+          <div class="sort-card parallel bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Bitonic Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-semibold">Redes Paralelas</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Construído para redes de comparação e paralelismo massivo em GPUs e arquiteturas multicore.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Complexidade: O(n log² n)</span>
+          </div>
+
+          <!-- Card Sample Sort -->
+          <div class="sort-card parallel bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 text-sm">Sample Sort</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-semibold">Distribuído</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">Amostragem para balanceamento de carga e distribuição de dados entre nós de rede independentes.</p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3 block">Foco: Memória Distribuída</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amdahl's Law Interactive Calculator & Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-lg font-bold text-slate-800">Simulador da Lei de Amdahl (Speedup Limit)</h3>
+              <span class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-full">Análise Paralela</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              A fórmula $S_p = \frac{1}{(1-P) + \frac{P}{p}}$ demonstra como a fração estritamente sequencial $(1-P)$ limita o aceleração máxima, mesmo com número infinito de processadores.
+            </p>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="chartAmdahl"></canvas>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100 space-y-3 text-xs">
+            <div class="flex items-center justify-between">
+              <label for="rangeP" class="font-semibold text-slate-700">Fração Paralelizável (P): <span id="valP" class="text-indigo-600 font-bold">90%</span></label>
+              <input type="range" id="rangeP" min="50" max="99" value="90" step="1" class="w-40 accent-indigo-600" oninput="updateAmdahlChart(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Amdahl Stats Summary Box -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg mb-3">Métricas de Desempenho</h3>
+            
+            <div class="space-y-4">
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <span class="text-xs text-slate-500 block uppercase font-semibold">Speedup Máximo Teórico (p → ∞)</span>
+                <span id="maxSpeedup" class="text-3xl font-bold text-indigo-600 mt-1 block">10.0x</span>
+                <span class="text-[11px] text-slate-400 mt-1 block">Limitado pelos 10% de código sequencial.</span>
+              </div>
+
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <span class="text-xs text-slate-500 block uppercase font-semibold">Eficiência com 16 Processadores</span>
+                <span id="efficiency16" class="text-2xl font-bold text-emerald-600 mt-1 block">41.2%</span>
+                <span class="text-[11px] text-slate-400 mt-1 block">Perda por gargalo de sincronização e comunicação.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+            <span class="text-xs font-bold text-amber-800 block mb-1">Gargalos no Processamento Paralelo</span>
+            <p class="text-[11px] text-amber-700 leading-relaxed">
+              Além do limite teórico de Amdahl, o ganho real de velocidade é atenuado pela sobrecarga de comunicação entre threads e contenção de barramento de memória.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 5: ENGENHARIA DE PROMPTS E TUTORIA ADAPTATIVA -->
+    <section id="sec-prompts" class="tab-content hidden space-y-6">
+      <!-- Introductory Paragraph -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Engenharia de Prompts para Tutoria Adaptativa</h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Para operacionalizar o conteúdo pedagógico deste relatório em sistemas de inteligência artificial interativos, é necessário estruturar prompts parametrizados com papéis instrucionais, delimitações contextuais e mecanismos de diagnósticos de erros. Utilize a ferramenta abaixo para gerar prompts adaptativos prontos para simulações de tutoria.
+        </p>
+      </div>
+
+      <!-- Prompt Components Grid Reference -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">1. Papel & Contexto</span>
+          <h3 class="font-bold text-slate-800 text-sm mb-2">Definição Instrucional</h3>
+          <p class="text-xs text-slate-600">Atua como professor doutor em Ciência da Computação focado em análise rigorosa de algoritmos e estruturas de dados.</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">2. Desafio Ativo</span>
+          <h3 class="font-bold text-slate-800 text-sm mb-2">Engajamento Continuado</h3>
+          <p class="text-xs text-slate-600">Apresenta estados práticos da memória ou vetores e solicita ao estudante a execução manual da próxima etapa.</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-1">3. Diagnóstico Adaptativo</span>
+          <h3 class="font-bold text-slate-800 text-sm mb-2">Tratamento de Equívocos</h3>
+          <p class="text-xs text-slate-600">Identifica perda de ponteiros, nós órfãos, acessos inválidos em listas encadeadas e suposições errôneas sobre a Lei de Amdahl.</p>
+        </div>
+      </div>
+
+      <!-- Interactive Prompt Builder Tool -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 pb-2 border-b border-slate-100">Gerador Modular de Prompts de Tutoria</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="promptModule" class="block text-xs font-bold text-slate-700 mb-1">Módulo Temático:</label>
+            <select id="promptModule" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="generatePrompt()">
+              <option value="search">Pesquisa Sequencial vs Binária</option>
+              <option value="linear">Estruturas Lineares & Ponteiros</option>
+              <option value="sorting">Ordenação & Paralelismo (Amdahl)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="promptLevel" class="block text-xs font-bold text-slate-700 mb-1">Nível do Estudante:</label>
+            <select id="promptLevel" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="generatePrompt()">
+              <option value="iniciante">Iniciante (Conceitual & Visual)</option>
+              <option value="intermediario">Intermediário (Análise de Código & Ponteiros)</option>
+              <option value="avancado">Avançado (Complexidade Assintótica & Paralelismo)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="promptStyle" class="block text-xs font-bold text-slate-700 mb-1">Estilo de Interação:</label>
+            <select id="promptStyle" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="generatePrompt()">
+              <option value="socratico">Diálogo Socrático (Perguntas Guiadas)</option>
+              <option value="desafio">Desafio Prático com Código/Estado</option>
+              <option value="diagnostico">Análise e Correção de Bugs</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Generated Output Box -->
+        <div class="pt-2">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Prompt Estruturado Resultante</span>
+            <button onclick="copyPromptText()" class="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+              <span>Copiar Prompt</span>
+            </button>
+          </div>
+          <textarea id="promptOutput" readonly class="w-full h-56 p-4 bg-slate-900 text-slate-100 font-mono text-xs rounded-xl border border-slate-800 leading-relaxed focus:outline-none resize-none"></textarea>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>Plataforma Pedagógica Baseada no Relatório de Estruturas de Dados e Algoritmos © 2026</p>
+      <p class="mt-1 text-slate-400">Desenvolvido com Tailwind CSS, Chart.js e HTML5 Canvas. Isento de SVG e Mermaid JS.</p>
+    </div>
+  </footer>
+
+
+  <!-- JAVASCRIPT CORE LOGIC -->
+  <script>
+    // Global Navigation State
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-700', 'font-semibold');
+        btn.classList.add('text-slate-600');
+      });
+
+      document.getElementById('sec-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('nav-' + tabId);
+      activeBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-700', 'font-semibold');
+      activeBtn.classList.remove('text-slate-600');
+
+      // Trigger chart re-render/resize on tab switch if needed
+      if (tabId === 'overview' && chartComplexity) {
+        chartComplexity.resize();
+      } else if (tabId === 'sorting' && chartAmdahl) {
+        chartAmdahl.resize();
+      }
+    }
+
+    // --- CHART 1: COMPLEXITY CURVES ---
+    let chartComplexity;
+    function initComplexityChart() {
+      const ctx = document.getElementById('chartComplexity').getContext('2d');
+      const nVal = 32;
+      const labels = Array.from({length: nVal}, (_, i) => i + 1);
+
+      chartComplexity = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'O(1) - Constante',
+              data: labels.map(() => 1),
+              borderColor: '#10B981',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            },
+            {
+              label: 'O(log n) - Logarítmico',
+              data: labels.map(n => Math.log2(n)),
+              borderColor: '#3B82F6',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            },
+            {
+              label: 'O(n) - Linear',
+              data: labels.map(n => n),
+              borderColor: '#6366F1',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            },
+            {
+              label: 'O(n log n) - Quasilinear',
+              data: labels.map(n => n * Math.log2(n)),
+              borderColor: '#8B5CF6',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            },
+            {
+              label: 'O(n²) - Quadrático',
+              data: labels.map(n => n * n),
+              borderColor: '#F59E0B',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { size: 11 }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => 'N = ' + items[0].label,
+                label: (item) => `${item.dataset.label}: ${Math.round(item.raw)} ops`
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Tamanho da Entrada (N)', font: { size: 11 } }
+            },
+            y: {
+              title: { display: true, text: 'Número de Operações', font: { size: 11 } },
+              max: 300,
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function updateComplexityChart(val) {
+      document.getElementById('valN').innerText = val;
+      const nVal = parseInt(val);
+      const labels = Array.from({length: nVal}, (_, i) => i + 1);
+      
+      chartComplexity.data.labels = labels;
+      chartComplexity.data.datasets[0].data = labels.map(() => 1);
+      chartComplexity.data.datasets[1].data = labels.map(n => Math.log2(n));
+      chartComplexity.data.datasets[2].data = labels.map(n => n);
+      chartComplexity.data.datasets[3].data = labels.map(n => n * Math.log2(n));
+      chartComplexity.data.datasets[4].data = labels.map(n => n * n);
+      
+      chartComplexity.options.scales.y.max = nVal > 50 ? 1000 : 300;
+      chartComplexity.update();
+    }
+
+
+    // --- SEARCH SIMULATION LOGIC ---
+    const sortedArray = [5, 12, 18, 23, 29, 34, 41, 47, 53, 60, 68, 73, 81, 88, 92, 97];
+
+    function renderArrayDisplay(activeIdx = -1, low = -1, high = -1) {
+      const container = document.getElementById('arrayDisplay');
+      container.innerHTML = '';
+
+      sortedArray.forEach((val, idx) => {
+        const cell = document.createElement('div');
+        cell.className = `p-2 text-center rounded-lg border text-xs font-bold transition-all ${
+          idx === activeIdx ? 'bg-emerald-500 text-white border-emerald-600 scale-105 shadow' :
+          (idx >= low && idx <= high) ? 'bg-blue-50 text-blue-800 border-blue-300' :
+          'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+        cell.innerHTML = `<div>${val}</div><div class="text-[9px] font-normal text-slate-400 mt-0.5">[${idx}]</div>`;
+        container.appendChild(cell);
+      });
+    }
+
+    function runSearchSimulation() {
+      const target = parseInt(document.getElementById('targetInput').value);
+      if (isNaN(target)) return;
+
+      // Sequential Search
+      let seqCompares = 0;
+      let seqFound = false;
+      for (let i = 0; i < sortedArray.length; i++) {
+        seqCompares++;
+        if (sortedArray[i] === target) {
+          seqFound = true;
+          break;
+        }
+      }
+
+      document.getElementById('seqSteps').innerText = `${seqCompares} Comparação(ões)`;
+      document.getElementById('seqLog').innerText = seqFound 
+        ? `Chave ${target} encontrada no índice ${sortedArray.indexOf(target)} após percorrer ${seqCompares} elemento(s) linearmente.`
+        : `Chave ${target} não encontrada após varrer todos os ${seqCompares} elementos. Pior caso O(n).`;
+
+      // Binary Search
+      let binCompares = 0;
+      let low = 0;
+      let high = sortedArray.length - 1;
+      let binFound = false;
+      let midIndex = -1;
+
+      while (low <= high) {
+        binCompares++;
+        midIndex = Math.floor((low + high) / 2);
+        if (sortedArray[midIndex] === target) {
+          binFound = true;
+          break;
+        } else if (sortedArray[midIndex] < target) {
+          low = midIndex + 1;
+        } else {
+          high = midIndex - 1;
+        }
+      }
+
+      document.getElementById('binSteps').innerText = `${binCompares} Comparação(ões)`;
+      document.getElementById('binLog').innerText = binFound
+        ? `Chave ${target} encontrada no índice central [${midIndex}] em apenas ${binCompares} divisão(ões) logarítmica(s).`
+        : `Chave ${target} não encontrada no intervalo após ${binCompares} reduções logarítmicas O(log n).`;
+
+      renderArrayDisplay(binFound ? midIndex : -1, low, high);
+    }
+
+
+    // --- LINEAR DATA STRUCTURES STATE MACHINE ---
+    let stackData = ['A', 'B', 'C'];
+    let queueData = ['Job1', 'Job2'];
+
+    function renderStack() {
+      const container = document.getElementById('stackVisual');
+      container.innerHTML = '';
+      if (stackData.length === 0) {
+        document.getElementById('stackStatus').innerText = 'Pilha Vazia (Topo = NULL)';
+        return;
+      }
+
+      document.getElementById('stackStatus').innerText = `Topo da Pilha → '${stackData[stackData.length - 1]}' | Total: ${stackData.length} elementos`;
+
+      for (let i = stackData.length - 1; i >= 0; i--) {
+        const node = document.createElement('div');
+        node.className = `w-48 py-2 px-4 rounded-lg text-center text-xs font-bold border ${
+          i === stackData.length - 1 
+            ? 'bg-blue-600 text-white border-blue-700 shadow-sm' 
+            : 'bg-white text-slate-700 border-slate-200'
+        }`;
+        node.innerHTML = `${stackData[i]} ${i === stackData.length - 1 ? '<span class="text-[10px] font-normal block text-blue-200">← TOPO</span>' : ''}`;
+        container.appendChild(node);
+      }
+    }
+
+    function pushStack() {
+      const val = document.getElementById('stackInput').value.trim() || `Elem ${stackData.length + 1}`;
+      stackData.push(val);
+      document.getElementById('stackInput').value = '';
+      renderStack();
+    }
+
+    function popStack() {
+      if (stackData.length > 0) {
+        stackData.pop();
+        renderStack();
+      }
+    }
+
+    function renderQueue() {
+      const container = document.getElementById('queueVisual');
+      container.innerHTML = '';
+      if (queueData.length === 0) {
+        document.getElementById('queueStatus').innerText = 'Fila Vazia (Início = NULL, Fim = NULL)';
+        return;
+      }
+
+      document.getElementById('queueStatus').innerText = `Início (Head) → '${queueData[0]}' | Fim (Tail) → '${queueData[queueData.length - 1]}'`;
+
+      queueData.forEach((val, idx) => {
+        const node = document.createElement('div');
+        node.className = `min-w-[90px] py-3 px-3 rounded-lg text-center text-xs font-bold border flex-shrink-0 ${
+          idx === 0 
+            ? 'bg-indigo-600 text-white border-indigo-700' 
+            : idx === queueData.length - 1 
+            ? 'bg-indigo-100 text-indigo-900 border-indigo-300' 
+            : 'bg-white text-slate-700 border-slate-200'
+        }`;
+        
+        let label = '';
+        if (idx === 0) label = '<span class="text-[9px] font-normal block text-indigo-200">INÍCIO (Head)</span>';
+        else if (idx === queueData.length - 1) label = '<span class="text-[9px] font-normal block text-indigo-600">FIM (Tail)</span>';
+
+        node.innerHTML = `<div>${val}</div>${label}`;
+        container.appendChild(node);
+
+        if (idx < queueData.length - 1) {
+          const arrow = document.createElement('div');
+          arrow.className = 'text-slate-400 font-bold text-xs px-1';
+          arrow.innerText = '→';
+          container.appendChild(arrow);
+        }
+      });
+    }
+
+    function enqueueQueue() {
+      const val = document.getElementById('queueInput').value.trim() || `Job ${queueData.length + 1}`;
+      queueData.push(val);
+      document.getElementById('queueInput').value = '';
+      renderQueue();
+    }
+
+    function dequeueQueue() {
+      if (queueData.length > 0) {
+        queueData.shift();
+        renderQueue();
+      }
+    }
+
+
+    // --- SORTING FILTER MATRIX ---
+    function filterSorting(category) {
+      document.querySelectorAll('.sort-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('bg-slate-100', 'text-slate-600');
+      });
+      event.target.classList.add('bg-blue-600', 'text-white');
+      event.target.classList.remove('bg-slate-100', 'text-slate-600');
+
+      document.querySelectorAll('.sort-card').forEach(card => {
+        if (category === 'all' || card.classList.contains(category)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+
+    // --- CHART 2: AMDAHL'S LAW & SPEEDUP ---
+    let chartAmdahl;
+    function initAmdahlChart() {
+      const ctx = document.getElementById('chartAmdahl').getContext('2d');
+      const processors = [1, 2, 4, 8, 16, 32, 64];
+      const P = 0.90;
+
+      chartAmdahl = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: processors.map(p => `${p} CPU${p > 1 ? 's' : ''}`),
+          datasets: [
+            {
+              label: 'Speedup Real (Lei de Amdahl)',
+              data: processors.map(p => 1 / ((1 - P) + (P / p))),
+              borderColor: '#6366F1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Speedup Ideal (Linear)',
+              data: processors,
+              borderColor: '#CBD5E1',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: (item) => `${item.dataset.label}: ${item.raw.toFixed(2)}x`
+              }
+            }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Número de Processadores (p)', font: { size: 11 } } },
+            y: { title: { display: true, text: 'Ganho de Velocidade (Speedup S_p)', font: { size: 11 } }, max: 20, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function updateAmdahlChart(val) {
+      const P = parseInt(val) / 100;
+      document.getElementById('valP').innerText = `${val}%`;
+
+      const processors = [1, 2, 4, 8, 16, 32, 64];
+      const speedupData = processors.map(p => 1 / ((1 - P) + (P / p)));
+
+      chartAmdahl.data.datasets[0].data = speedupData;
+      
+      const maxS = 1 / (1 - P);
+      document.getElementById('maxSpeedup').innerText = `${maxS.toFixed(1)}x`;
+
+      const s16 = 1 / ((1 - P) + (P / 16));
+      const eff16 = (s16 / 16) * 100;
+      document.getElementById('efficiency16').innerText = `${eff16.toFixed(1)}%`;
+
+      chartAmdahl.options.scales.y.max = maxS > 25 ? 35 : 20;
+      chartAmdahl.update();
+    }
+
+
+    // --- PROMPT GENERATOR TOOL ---
+    function generatePrompt() {
+      const module = document.getElementById('promptModule').value;
+      const level = document.getElementById('promptLevel').value;
+      const style = document.getElementById('promptStyle').value;
+
+      let moduleText = "";
+      if (module === 'search') {
+        moduleText = "Pesquisa Sequencial vs Pesquisa Binária (Análise O(n) e O(log n), pré-requisitos de ordenação, sentinelas e prevenção de overflow em índices).";
+      } else if (module === 'linear') {
+        moduleText = "Estruturas Lineares e Memória Dinâmica (Ponteiros na Heap, Células Autorreferenciáveis, Pilhas LIFO, Filas FIFO com duplo ponteiro, Vazamento de Memória e SegFault).";
+      } else {
+        moduleText = "Algoritmos de Ordenação e Computação Paralela (Métodos O(n²) vs O(n log n), Bitonic/Sample Sort, Speedup, Eficiência e Limites de Amdahl).";
+      }
+
+      const promptTemplate = `[PAPEL]: Atue como Doutor em Ciência da Computação e Tutor Adaptativo Especialista em Estruturas de Dados e Análise de Algoritmos.
+
+[TÓPICO ALVO]: ${moduleText}
+[NÍVEL DO ESTUDANTE]: ${level.toUpperCase()}
+[ESTILO DE INTERAÇÃO]: ${style.toUpperCase()}
+
+[DIRETRIZES DE ENGAJAMENTO]:
+1. Exponha o fundamento teórico básico sem fornecer a resposta final do problema imediatamente.
+2. Apresente um estado prático (como o estado interno de ponteiros na memória ou um vetor) e solicite ao usuário a execução manual do próximo passo algorítmico.
+3. Se o estudante cometer um erro clássico (ex: perda de referência do nó Head, suposição de acesso direto em listas, ou cálculo errôneo do Speedup), diagnostique a causa raiz do equívoco.
+4. Finalize cada resposta com uma pergunta provocativa para validar a fixação do conceito.
+
+[INICIAR INTERAÇÃO]: Apresente o primeiro desafio adaptativo sobre o tópico especificado.`;
+
+      document.getElementById('promptOutput').value = promptTemplate;
+    }
+
+    function copyPromptText() {
+      const area = document.getElementById('promptOutput');
+      area.select();
+      document.execCommand('copy');
+      alert('Prompt copiado para a área de transferência!');
+    }
+
+
+    // INITIALIZATION ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      initComplexityChart();
+      initAmdahlChart();
+      renderArrayDisplay();
+      renderStack();
+      renderQueue();
+      generatePrompt();
+    });
+  </script>
+</body>
+</html>
