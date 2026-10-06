@@ -19,8 +19,15 @@ CelulaDupla *novaCelula(int elemento)
 void inserir(CelulaDupla **primeiro,CelulaDupla **ultimo){
     int x ;
     scanf("%d",&x);
-    (*ultimo)->prox = novaCelula(x);
-    (*ultimo) = (*ultimo)->prox;
+    CelulaDupla *tmp = novaCelula(x);
+    if((*primeiro) == NULL){
+        (*primeiro) = tmp;
+        (*ultimo) = tmp;
+    }else{
+        (*ultimo)->prox = tmp;
+        tmp->ant = (*ultimo); 
+        (*ultimo) = tmp;     
+    }
 }
 
 
