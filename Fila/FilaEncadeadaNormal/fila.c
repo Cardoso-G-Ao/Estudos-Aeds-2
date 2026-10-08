@@ -44,7 +44,6 @@ int main(){
 
     inserir(&primeiro,&ultimo);
 
-for();
     Celula *atual = primeiro;
     while (atual != NULL) {
         printf("%d ", atual->elemento);

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila Circular com Espaço de Segurança</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-8">
+
+    <header class="w-full max-w-4xl text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-amber-400 mb-2">Fila Circular: O Espaço de Segurança</h1>
+        <p class="text-slate-400 text-sm sm:text-base">Demonstração visual do uso de uma posição ociosa para diferenciar o estado "Cheia" do estado "Vazia".</p>
+    </header>
+
+    <main class="w-full max-w-4xl bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col gap-6">
+        
+        <!-- Controls & Input Section -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <input type="number" id="valorInput" placeholder="Digite um valor" class="bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500 w-full sm:w-40">
+                <button onclick="enfileirar()" class="bg-amber-600 hover:bg-amber-500 text-white font-medium px-5 py-2 rounded-lg transition-all shadow-md active:scale-95 cursor-pointer">Enfileirar</button>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button onclick="desenfileirar()" class="bg-rose-600 hover:bg-rose-500 text-white font-medium px-5 py-2 rounded-lg transition-all shadow-md active:scale-95 cursor-pointer flex-1 sm:flex-none">Desenfileirar</button>
+                <button onclick="reiniciarFila()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium px-4 py-2 rounded-lg transition-all border border-slate-600 cursor-pointer">Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- Queue Status Panel -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+                <span class="block text-xs text-slate-400 uppercase font-semibold">Capacidade Física</span>
+                <span id="capacidadeTxt" class="text-xl font-bold text-sky-400">5</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+                <span class="block text-xs text-slate-400 uppercase font-semibold">Espaços Úteis</span>
+                <span id="uteisTxt" class="text-xl font-bold text-amber-400">4</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+                <span class="block text-xs text-slate-400 uppercase font-semibold">Ponteiro Frente</span>
+                <span id="frenteTxt" class="text-xl font-bold text-purple-400">0</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+                <span class="block text-xs text-slate-400 uppercase font-semibold">Ponteiro Trás</span>
+                <span id="trasTxt" class="text-xl font-bold text-emerald-400">0</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center my-6">
+            <p class="text-xs text-slate-400 mb-4 tracking-wider uppercase font-medium">Vetor Físico (Capacidade 5, onde 1 posição é reservada como espaço vazio):</p>
+            <div id="gridVetor" class="grid grid-cols-5 gap-3 w-full max-w-xl">
+                <!-- Injetado dinamicamente via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Log/Console output area -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/60">
+            <span class="block text-xs text-slate-400 font-mono mb-2 uppercase tracking-wide">Log de Ações e Regra de Cheia:</span>
+            <div id="logArea" class="h-28 overflow-y-auto font-mono text-xs text-slate-300 space-y-1 flex flex-col-reverse scrollbar-thin">
+                <div class="text-slate-500">Sistema inicializado com espaço de segurança. Fila pronta.</div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const capacidadeFisica = 5; // 4 elementos úteis + 1 espaço de segurança
+        let vetor = new Array(capacidadeFisica).fill(null);
+        let frente = 0;
+        let tras = 0;
+
+        function logMensagem(msg, tipo = 'info') {
+            const logArea = document.getElementById('logArea');
+            const div = document.createElement('div');
+            let cor = 'text-slate-300';
+            if (tipo === 'sucesso') cor = 'text-emerald-400';
+            if (tipo === 'erro') cor = 'text-rose-400';
+            if (tipo === 'aviso') cor = 'text-amber-400';
+            
+            div.className = `${cor}`;
+            div.textContent = `> ${msg}`;
+            logArea.prepend(div);
+        }
+
+        function atualizarUI() {
+            document.getElementById('capacidadeTxt').textContent = capacidadeFisica;
+            document.getElementById('uteisTxt').textContent = capacidadeFisica - 1;
+            document.getElementById('frenteTxt').textContent = frente;
+            document.getElementById('trasTxt').textContent = tras;
+
+            const grid = document.getElementById('gridVetor');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < capacidadeFisica; i++) {
+                const celula = document.createElement('div');
+                celula.className = "flex flex-col items-center justify-center h-20 rounded-xl border-2 transition-all relative ";
+
+                let badges = '';
+                if (i === frente && i === tras) {
+                    celula.className += "border-sky-500 bg-sky-950/20";
+                    badges += '<span class="absolute -top-3 text-[10px] bg-sky-600 text-white px-2 py-0.5 rounded-full font-bold shadow">FRENTE & TRÁS (Vazia)</span>';
+                } else {
+                    if (i === frente) {
+                        celula.className += "border-purple-500 bg-purple-950/20";
+                        badges += '<span class="absolute -top-3 text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full font-bold shadow">FRENTE</span>';
+                    }
+                    if (i === tras) {
+                        celula.className += "border-amber-500 bg-amber-950/20";
+                        badges += '<span class="absolute -top-3 text-[10px] bg-amber-600 text-black font-extrabold px-1.5 py-0.5 rounded-full shadow">TRÁS (Espaço Ocioso)</span>';
+                    }
+                }
+
+                if (i !== frente && i !== tras && !(i === frente && i === tras)) {
+                    celula.className += "border-slate-700 bg-slate-800/40";
+                }
+
+                const valorHtml = vetor[i] !== null ? `<span class="text-lg font-bold text-white">${vetor[i]}</span>` : `<span class="text-slate-600 italic text-xs">vazio/ocioso</span>`;
+                
+                celula.innerHTML = `
+                    ${badges}
+                    ${valorHtml}
+                    <span class="text-[10px] text-slate-500 mt-1 font-mono">índice [${i}]</span>
+                `;
+                grid.appendChild(celula);
+            }
+        }
+
+        function enfileirar() {
+            const input = document.getElementById('valorInput');
+            const val = parseInt(input.value);
+
+            if (isNaN(val)) {
+                logMensagem("Digite um número válido para enfileirar.", "erro");
+                return;
+            }
+
+            // Condição clássica de Fila Cheia com espaço de segurança:
+            // (tras + 1) % capacidadeFisica == frente
+            if ((tras + 1) % capacidadeFisica === frente) {
+                logMensagem("Fila Cheia! O ponteiro 'tras' não pode alcançar 'frente' devido ao espaço de segurança.", "erro");
+                return;
+            }
+
+            // Insere na posição de trás
+            vetor[tras] = val;
+            logMensagem(`Elemento ${val} enfileirado na posição [${tras}].`, "sucesso");
+            
+            // Avança 'tras' circularmente
+            tras = (tras + 1) % capacidadeFisica;
+
+            input.value = '';
+            input.focus();
+            atualizarUI();
+        }
+
+        function desenfileirar() {
+            // Condição de Fila Vazia: frente == tras
+            if (frente === tras) {
+                logMensagem("Erro: A fila está vazia! Não há o que remover.", "erro");
+                return;
+            }
+
+            const removido = vetor[frente];
+            vetor[frente] = null;
+            logMensagem(`Elemento ${removido} desenfileirado da posição [${frente}]. Espaço liberado.`, "sucesso");
+
+            // Avança 'frente' circularmente
+            frente = (frente + 1) % capacidadeFisica;
+
+            atualizarUI();
+        }
+
+        function reiniciarFila() {
+            vetor = new Array(capacidadeFisica).fill(null);
+            frente = 0;
+            tras = 0;
+            logMensagem("Fila reiniciada para o estado inicial.", "aviso");
+            atualizarUI();
+        }
+
+        // Inicializa a interface no carregamento
+        window.onload = function() {
+            atualizarUI();
+        };
+    </script>
+</body>
+</html>
