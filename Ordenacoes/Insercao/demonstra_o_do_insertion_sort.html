@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonstração Interativa - Insertion Sort</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 300px;
+            gap: 4px;
+            padding: 20px;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .array-bar {
+            width: 30px;
+            background-color: #3b82f6; /* Blue default */
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: transparent; /* Hide text initially or if too small */
+        }
+        
+        .array-bar.show-value {
+             color: white;
+        }
+
+        /* Status Colors */
+        .bar-sorted { background-color: #10b981; } /* Emerald green */
+        .bar-comparing { background-color: #f59e0b; transform: scale(1.05); } /* Amber */
+        .bar-inserting { background-color: #ef4444; transform: translateY(-10px); } /* Red */
+        
+        /* Highlight specific lines of code */
+        .code-line {
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .code-line.active {
+            background-color: #334155;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Custom Scrollbar for code area */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto w-full flex-grow flex flex-col gap-6">
+        
+        <!-- Header -->
+        <header class="text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">
+                Insertion Sort
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base max-w-2xl">
+                O Insertion Sort constrói o array final ordenado um item de cada vez. É muito menos eficiente em listas grandes do que algoritmos mais avançados, como quicksort, heapsort ou merge sort, mas oferece vantagens como implementação simples e eficiência em pequenos conjuntos de dados.
+            </p>
+        </header>
+
+        <!-- Controls Area -->
+        <div class="bg-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 border border-slate-700">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <button id="generateBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium text-sm flex-1 md:flex-none">
+                    Gerar Novo Array
+                </button>
+                <div class="flex items-center gap-2">
+                    <label for="speedSlider" class="text-sm text-slate-300 whitespace-nowrap">Velocidade:</label>
+                    <input type="range" id="speedSlider" min="10" max="1000" value="300" dir="rtl" class="w-24 md:w-32 accent-blue-500">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                 <button id="sortBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-bold text-sm shadow-lg shadow-blue-500/20 w-full md:w-auto">
+                    Iniciar Ordenação
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+            
+            <!-- Left Side: Visualizer & Info -->
+            <div class="flex flex-col gap-4">
+                <div class="bg-slate-800 rounded-xl p-1 border border-slate-700 relative">
+                    <div id="arrayContainer" class="bar-container relative">
+                        <!-- Bars will be injected here -->
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-4 text-xs font-medium bg-slate-900/80 p-2 mx-4 rounded-lg backdrop-blur-sm">
+                        <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Não Ordenado</div>
+                        <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-amber-500"></div>Comparando</div>
+                        <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-emerald-500"></div>Ordenado</div>
+                        <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-red-500"></div>Inserindo (Chave)</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 text-sm text-slate-300">
+                    <h3 class="text-white font-semibold mb-2">Status da Execução</h3>
+                    <div id="statusText" class="min-h-[3rem] font-mono text-emerald-400 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                        Aguardando início...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: C Code -->
+            <div class="bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-700 flex flex-col">
+                <div class="bg-slate-800/50 px-4 py-2 border-b border-slate-700 flex justify-between items-center">
+                    <span class="text-sm font-medium text-slate-300">Código em C</span>
+                    <span class="text-xs px-2 py-1 bg-slate-700 rounded text-slate-300">insertion_sort.c</span>
+                </div>
+                <div class="p-4 overflow-auto flex-grow code-font text-sm text-slate-300 leading-relaxed" id="codeContainer">
+<!-- Important: Formatting matters here for alignment -->
+<pre><code class="language-c">
+<div id="line-0" class="code-line">void insertionSort(int arr[], int n) {</div>
+<div id="line-1" class="code-line">    int i, key, j;</div>
+<div id="line-2" class="code-line">    for (i = 1; i &lt; n; i++) {</div>
+<div id="line-3" class="code-line text-blue-300">        key = arr[i];</div>
+<div id="line-4" class="code-line text-blue-300">        j = i - 1;</div>
+<div id="line-5" class="code-line"></div>
+<div id="line-6" class="code-line text-slate-400">        /* Move os elementos do arr[0..i-1], que são</div>
+<div id="line-7" class="code-line text-slate-400">           maiores que a chave, para uma posição à</div>
+<div id="line-8" class="code-line text-slate-400">           frente de sua posição atual */</div>
+<div id="line-9" class="code-line">        while (j &gt;= 0 && arr[j] &gt; key) {</div>
+<div id="line-10" class="code-line text-amber-300">            arr[j + 1] = arr[j];</div>
+<div id="line-11" class="code-line text-amber-300">            j = j - 1;</div>
+<div id="line-12" class="code-line">        }</div>
+<div id="line-13" class="code-line text-red-400">        arr[j + 1] = key;</div>
+<div id="line-14" class="code-line">    }</div>
+<div id="line-15" class="code-line">}</div>
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const arrayContainer = document.getElementById('arrayContainer');
+        const generateBtn = document.getElementById('generateBtn');
+        const sortBtn = document.getElementById('sortBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const statusText = document.getElementById('statusText');
+        
+        let array = [];
+        const ARRAY_SIZE = 20; // Fixed size for better visual representation
+        const MAX_VALUE = 100;
+        let delay = 300; // ms
+        let isSorting = false;
+        let abortController = null;
+
+        // Initialize
+        function init() {
+            generateArray();
+            updateDelay();
+            
+            generateBtn.addEventListener('click', () => {
+                if(!isSorting) generateArray();
+            });
+            
+            speedSlider.addEventListener('input', updateDelay);
+            
+            sortBtn.addEventListener('click', () => {
+                if (!isSorting) {
+                    insertionSort();
+                } else {
+                    // Optional: Implement Stop functionality by aborting
+                    if(abortController) abortController.abort();
+                    resetUI();
+                }
+            });
+        }
+
+        function updateDelay() {
+            // Reverse logic: smaller slider value = larger delay (slower)
+            // But we set dir="rtl" on input so value 1000 is left, 10 is right
+            delay = parseInt(speedSlider.value);
+        }
+
+        function generateArray() {
+            array = [];
+            arrayContainer.innerHTML = '';
+            clearCodeHighlights();
+            statusText.innerHTML = "Array gerado aleatoriamente. Aguardando início...";
+            statusText.className = "min-h-[3rem] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-700";
+
+            for (let i = 0; i < ARRAY_SIZE; i++) {
+                // Generate random number between 10 and MAX_VALUE
+                const value = Math.floor(Math.random() * (MAX_VALUE - 10 + 1)) + 10;
+                array.push(value);
+                
+                const bar = document.createElement('div');
+                bar.classList.add('array-bar', 'show-value');
+                // Calculate height percentage based on MAX_VALUE (leaving some top margin)
+                const heightPercent = (value / MAX_VALUE) * 90;
+                bar.style.height = `${heightPercent}%`;
+                bar.innerText = value;
+                
+                arrayContainer.appendChild(bar);
+            }
+        }
+
+        // Helper for async delays
+        function sleep(ms, signal) {
+            return new Promise((resolve, reject) => {
+                const timeoutId = setTimeout(resolve, ms);
+                if (signal) {
+                    signal.addEventListener('abort', () => {
+                        clearTimeout(timeoutId);
+                        reject(new Error('Aborted'));
+                    });
+                }
+            });
+        }
+
+        function highlightLine(lineIndex) {
+            clearCodeHighlights();
+            const line = document.getElementById(`line-${lineIndex}`);
+            if (line) {
+                line.classList.add('active');
+                // Auto-scroll logic if needed
+                const container = document.getElementById('codeContainer');
+                const offsetTop = line.offsetTop;
+                if (offsetTop > container.scrollTop + container.clientHeight - 50 || offsetTop < container.scrollTop) {
+                    container.scrollTo({ top: offsetTop - 50, behavior: 'smooth' });
+                }
+            }
+        }
+
+        function clearCodeHighlights() {
+            const lines = document.querySelectorAll('.code-line');
+            lines.forEach(line => line.classList.remove('active'));
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusText.innerHTML = message;
+            if (type === 'success') {
+                statusText.className = "min-h-[3rem] font-mono text-emerald-400 bg-slate-900 p-2 rounded-lg border border-slate-700";
+            } else if (type === 'highlight') {
+                statusText.className = "min-h-[3rem] font-mono text-amber-400 bg-slate-900 p-2 rounded-lg border border-slate-700";
+            } else {
+                statusText.className = "min-h-[3rem] font-mono text-slate-300 bg-slate-900 p-2 rounded-lg border border-slate-700";
+            }
+        }
+
+        function setUIState(sorting) {
+            isSorting = sorting;
+            generateBtn.disabled = sorting;
+            generateBtn.classList.toggle('opacity-50', sorting);
+            generateBtn.classList.toggle('cursor-not-allowed', sorting);
+            
+            if (sorting) {
+                sortBtn.innerText = "Parar";
+                sortBtn.classList.replace('bg-blue-600', 'bg-red-600');
+                sortBtn.classList.replace('hover:bg-blue-500', 'hover:bg-red-500');
+                sortBtn.classList.replace('shadow-blue-500/20', 'shadow-red-500/20');
+            } else {
+                sortBtn.innerText = "Iniciar Ordenação";
+                sortBtn.classList.replace('bg-red-600', 'bg-blue-600');
+                sortBtn.classList.replace('hover:bg-red-500', 'hover:bg-blue-500');
+                sortBtn.classList.replace('shadow-red-500/20', 'shadow-blue-500/20');
+            }
+        }
+
+        function resetUI() {
+            setUIState(false);
+            clearCodeHighlights();
+            updateStatus("Ordenação interrompida.", 'highlight');
+            // Remove special classes from all bars
+            const bars = document.querySelectorAll('.array-bar');
+            bars.forEach(bar => {
+                bar.classList.remove('bar-comparing', 'bar-inserting', 'bar-sorted');
+            });
+        }
+
+        async function insertionSort() {
+            abortController = new AbortController();
+            const signal = abortController.signal;
+            setUIState(true);
+            const bars = document.querySelectorAll('.array-bar');
+            
+            // Assume first element is trivially sorted
+            bars[0].classList.add('bar-sorted');
+
+            try {
+                highlightLine(1); // int i, key, j;
+                await sleep(delay, signal);
+
+                // for (i = 1; i < n; i++)
+                for (let i = 1; i < array.length; i++) {
+                    highlightLine(2); 
+                    updateStatus(`Iniciando iteração <span class="text-blue-400">i = ${i}</span>.`);
+                    await sleep(delay, signal);
+
+                    // key = arr[i];
+                    highlightLine(3);
+                    let key = array[i];
+                    let keyHeight = bars[i].style.height;
+                    let keyText = bars[i].innerText;
+                    
+                    // Visually pull out the key
+                    bars[i].classList.add('bar-inserting');
+                    updateStatus(`Selecionando <span class="text-red-400">chave = ${key}</span> no índice ${i}.`);
+                    await sleep(delay * 1.5, signal);
+
+                    // j = i - 1;
+                    highlightLine(4);
+                    let j = i - 1;
+                    await sleep(delay, signal);
+
+                    // while (j >= 0 && arr[j] > key)
+                    while (j >= 0) {
+                        highlightLine(9);
+                        bars[j].classList.add('bar-comparing');
+                        updateStatus(`Comparando arr[${j}] (<span class="text-amber-400">${array[j]}</span>) com chave (<span class="text-red-400">${key}</span>).`);
+                        await sleep(delay, signal);
+                        
+                        if (array[j] > key) {
+                            // arr[j + 1] = arr[j];
+                            highlightLine(10);
+                            updateStatus(`arr[${j}] > chave. Movendo <span class="text-amber-400">${array[j]}</span> para a direita (índice ${j+1}).`);
+                            
+                            // Visual swap representation (shifting right)
+                            array[j + 1] = array[j];
+                            bars[j + 1].style.height = bars[j].style.height;
+                            bars[j + 1].innerText = bars[j].innerText;
+                            // Ensure the moved bar looks 'sorted' if it was part of the sorted portion
+                            bars[j + 1].classList.add('bar-sorted');
+                            bars[j + 1].classList.remove('bar-inserting'); 
+                            
+                            // Temporarily make the current j look empty or represent the key's target
+                            bars[j].style.height = keyHeight;
+                            bars[j].innerText = "";
+                            bars[j].classList.add('bar-inserting');
+                            bars[j].classList.remove('bar-sorted');
+
+                            await sleep(delay, signal);
+                            
+                            // j = j - 1;
+                            highlightLine(11);
+                            bars[j + 1].classList.remove('bar-comparing'); // Remove compare from the one we just shifted
+                            if(j+1 !== i) bars[j+1].classList.add('bar-sorted'); // keep sorted color
+                            
+                            j = j - 1;
+                            await sleep(delay, signal);
+                        } else {
+                            bars[j].classList.remove('bar-comparing');
+                            bars[j].classList.add('bar-sorted'); // Ensure it stays green
+                            updateStatus(`arr[${j}] <= chave. Encontrada posição de inserção.`, 'highlight');
+                            await sleep(delay, signal);
+                            break;
+                        }
+                    }
+
+                    // arr[j + 1] = key;
+                    highlightLine(13);
+                    updateStatus(`Inserindo chave <span class="text-red-400">${key}</span> no índice ${j + 1}.`);
+                    array[j + 1] = key;
+                    
+                    // Cleanup visual classes and set final height
+                    bars[j + 1].style.height = keyHeight;
+                    bars[j + 1].innerText = keyText;
+                    
+                    // Mark everything up to i as sorted
+                    for(let k = 0; k <= i; k++){
+                        bars[k].classList.remove('bar-inserting', 'bar-comparing');
+                        bars[k].classList.add('bar-sorted');
+                    }
+
+                    await sleep(delay * 1.5, signal);
+                }
+
+                // Finish
+                highlightLine(15);
+                updateStatus("Ordenação concluída com sucesso!", 'success');
+                setUIState(false);
+                
+                // Final flourish animation
+                for(let i=0; i<bars.length; i++){
+                    bars[i].classList.remove('bar-sorted');
+                    void bars[i].offsetWidth; // trigger reflow
+                    bars[i].classList.add('bar-sorted');
+                    await sleep(30, signal); // quick sweep
+                }
+
+            } catch (err) {
+                if (err.message === 'Aborted') {
+                    console.log('Sorting aborted by user.');
+                } else {
+                    console.error(err);
+                }
+            }
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>
