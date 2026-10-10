@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo: Heap Sort</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f5;--panel:#fff;--ink:#14232e;--mute:#5d707c;--line:#cfdbe1;--acc:#0f7c8a;--hot:#e0a100;--ok:#2e8b57;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}}
+:root[data-theme="dark"]{--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 14px;letter-spacing:-.01em}
+h3{font-size:.85rem;font-weight:600;color:var(--mute);margin:18px 0 8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+button,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+button:hover{border-color:var(--acc)}
+.tabs button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{color:#06222a}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#desc{margin:0 0 14px;max-width:70ch}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:8px}
+.ctl label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mute);flex:1;min-width:220px}
+input[type=text]{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.stage{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:6px 16px 18px;margin-top:10px}
+.row,.cols{display:flex;flex-wrap:wrap;gap:6px}
+.cols{gap:8px;align-items:flex-start}
+.w{display:flex;flex-direction:column;align-items:center;gap:2px}
+.i{font-size:.7rem;color:var(--mute)}
+.c{min-width:44px;height:44px;padding:0 8px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);font-weight:800;font-variant-numeric:tabular-nums;transition:background .25s,border-color .25s}
+.c.hot{background:var(--hot);border-color:var(--hot);color:#14232e}
+.c.on{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .c.on{color:#06222a}
+.c.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.dg{border-bottom:3px solid var(--acc)}
+.z{opacity:.35}
+.col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px}
+.ch{font-size:.8rem;font-weight:600;color:var(--mute)}
+.stack{min-height:52px;width:100%;box-sizing:border-box;border:1.5px dashed var(--line);border-radius:8px;padding:4px;display:flex;flex-direction:column;gap:4px;align-items:center}
+#msg{min-height:3em;margin:14px 0 4px;font-weight:600}
+#pos{font-size:.85rem;color:var(--mute)}
+.spd{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mute);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.c{transition:none}}
+.c.dim{opacity:.35}.leg{font-size:.85rem;color:var(--mute);margin:10px 0 0;max-width:70ch}.e{stroke:var(--line);stroke-width:2}.nd circle{fill:var(--bg);stroke:var(--line);stroke-width:1.5;transition:fill .25s}.nd text{fill:var(--ink);font-weight:800;font-size:15px;font-family:inherit}.nd.hot circle{fill:var(--hot);stroke:var(--hot)}.nd.hot text{fill:#14232e}.nd.on circle{fill:var(--acc);stroke:var(--acc)}.nd.on text{fill:#fff}:root:not([data-theme="light"]) .nd.on text{fill:#06222a}
+</style>
+</head>
+<body>
+<main>
+<h1>Heap Sort: demonstração interativa</h1>
+<p id="desc"></p>
+<div class="ctl">
+  <label>Números (separados por vírgula)<input type="text" id="inp"></label>
+  <button id="apply">Aplicar</button>
+  <button id="rnd">Sortear</button>
+</div>
+<div class="ctl">
+  <button id="prev">Voltar</button>
+  <button id="next">Próximo passo</button>
+  <button id="play">Reproduzir</button>
+  <span id="pos"></span>
+</div>
+<div class="spd"><label for="spd">Velocidade</label><input type="range" id="spd" min="200" max="1500" step="50" value="1000"></div>
+<div class="stage" id="stage"></div>
+<p class="leg">Âmbar: nó atual. Azul-petróleo: filho maior ou posição da troca. Verde: já na posição final, fora do heap.</p>
+<div id="msg" aria-live="polite"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const cell=(t,i,k,h)=>({t:t===null?'':t,i:i===undefined?'':i,k:k||'',h});
+const row=(label,cells)=>({type:'row',label,cells});
+
+function heap(a){
+  const F=[],n=a.length,arr=a.slice();let size=n;
+  const S=(msg,x=-1,y=-1)=>{const cs=arr.map((t,k)=>cell(t,k,k>=size?'ok':k===x?'hot':k===y?'on':''));
+    F.push({msg,blocks:[row('Array',cs),{type:'tree',label:'Heap como árvore (filhos da posição k: 2k+1 e 2k+2)',cells:cs.slice(0,size)}]})};
+  function sift(i){
+    for(;;){
+      const l=2*i+1,r=l+1;let g=i;
+      if(l<size&&arr[l]>arr[g])g=l;
+      if(r<size&&arr[r]>arr[g])g=r;
+      if(g===i){S(`${arr[i]} (posição ${i}) já é maior ou igual aos seus filhos: o nó está no lugar.`,i);return}
+      S(`${arr[i]} (posição ${i}) tem um filho maior: ${arr[g]} (posição ${g}). Vão trocar.`,i,g);
+      [arr[i],arr[g]]=[arr[g],arr[i]];
+      S(`Trocou: ${arr[i]} subiu e ${arr[g]} desceu para a posição ${g}. Continua descendo.`,g,i);
+      i=g;
+    }
+  }
+  S(`Fase 1: montar um max-heap (todo pai ≥ seus filhos). Começamos pelo último pai, na posição ${Math.floor(n/2)-1}.`);
+  for(let i=Math.floor(n/2)-1;i>=0;i--)sift(i);
+  S(`Max-heap pronto! O maior valor, ${arr[0]}, está na raiz.`,0);
+  for(let end=n-1;end>0;end--){
+    S(`Fase 2: troca a raiz (${arr[0]}) com o último elemento do heap (${arr[end]}, posição ${end}).`,0,end);
+    [arr[0],arr[end]]=[arr[end],arr[0]];size=end;
+    S(`${arr[end]} está na posição final e sai do heap, que agora tem ${size} elemento${size>1?'s':''}.`,0);
+    if(size>1)sift(0);
+  }
+  size=0;
+  S('Pronto! Todos os elementos foram extraídos na ordem certa e o array está ordenado.');
+  return F;
+}
+
+const A={
+  heap:{name:'Heap Sort',fn:heap,max:99,val:'38, 27, 43, 3, 9, 82, 10',d:'Transforma o array em um max-heap, depois troca a raiz (o maior) com o último elemento e reorganiza o heap. Tempo O(n log n) em todos os casos.'}
+};
+let cur='heap',F=[],idx=0,timer=null;
+
+const cellH=c=>`<div class="w"><div class="c ${c.k}">${c.h!==undefined?c.h:c.t}</div>${c.i!==''?`<span class="i">${c.i}</span>`:''}</div>`;
+function treeSvg(cs){
+  const m=cs.length;if(!m)return '';
+  const W=640,L=Math.floor(Math.log2(m))+1,H=L*58+8;let e='',nd='';
+  cs.forEach((c,k)=>{
+    const lv=Math.floor(Math.log2(k+1)),pos=k+1-2**lv,x=(pos+.5)/2**lv*W,y=26+lv*58;
+    if(k>0){const p=Math.floor((k-1)/2),pl=Math.floor(Math.log2(p+1)),pp=p+1-2**pl;
+      e+=`<line class="e" x1="${(pp+.5)/2**pl*W}" y1="${26+pl*58}" x2="${x}" y2="${y}"/>`}
+    nd+=`<g class="nd ${c.k}"><circle cx="${x}" cy="${y}" r="20"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle">${c.t}</text></g>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Heap como árvore binária" style="width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto">${e}${nd}</svg>`;
+}
+function draw(f){
+  $('stage').innerHTML=f.blocks.map(b=>b.type==='tree'?`<h3>${b.label}</h3>${treeSvg(b.cells)}`:b.type==='row'
+    ?`<h3>${b.label}</h3><div class="row">${b.cells.map(cellH).join('')}</div>`
+    :`<h3>${b.label}</h3><div class="cols">${b.cols.map(c=>`<div class="col"><span class="ch">${c.h}</span><div class="stack">${c.cells.map(cellH).join('')}</div></div>`).join('')}</div>`).join('');
+  $('msg').textContent=f.msg;
+  $('pos').textContent=`Passo ${idx+1} de ${F.length}`;
+  $('prev').disabled=idx===0;$('next').disabled=idx===F.length-1;
+}
+function go(n){idx=Math.max(0,Math.min(F.length-1,n));draw(F[idx])}
+function stop(){clearInterval(timer);timer=null;$('play').textContent='Reproduzir'}
+function start(){clearInterval(timer);$('play').textContent='Pausar';timer=setInterval(()=>{if(idx>=F.length-1){stop();return}go(idx+1)},1700-$('spd').value)}
+function load(){
+  stop();
+  const m=A[cur].max,r=$('inp').value.split(/[\s,;]+/).filter(Boolean).map(Number);
+  if(r.length<2||r.length>12||r.some(x=>!Number.isInteger(x)||x<0||x>m)){$('msg').textContent=`Digite de 2 a 12 números inteiros entre 0 e ${m}, separados por vírgula.`;return}
+  A[cur].val=r.join(', ');F=A[cur].fn(r);go(0);
+}
+function pick(k){
+  cur=k;stop();
+  $('desc').textContent=A[k].d;$('inp').value=A[k].val;load();
+}
+$('apply').onclick=load;
+$('inp').onkeydown=e=>{if(e.key==='Enter')load()};
+$('rnd').onclick=()=>{const m=A[cur].max;$('inp').value=Array.from({length:8},()=>Math.floor(Math.random()*(m+1))).join(', ');load()};
+$('prev').onclick=()=>{stop();go(idx-1)};
+$('next').onclick=()=>{stop();go(idx+1)};
+$('play').onclick=()=>{if(timer){stop();return}if(idx>=F.length-1)go(0);start()};
+$('spd').oninput=()=>{if(timer)start()};
+pick('heap');
+</script>
+</body>
+</html>
