@@ -70,6 +70,8 @@ NOMES_ARQUIVOS = {
     "heapsort.c": "Heap Sort",
     "image.png": "Imagem",
     "filacircular.md": "Fila circular: conceitos",
+    "pilhainserir.c": "Pilha: inserir (empilhar)",
+    "pilharemover.c": "Pilha: remover (desempilhar)",
     "celula.c": "Célula",
     "celuladupla.c": "Célula dupla",
     "celulacabeca.c": "Célula com cabeça",
