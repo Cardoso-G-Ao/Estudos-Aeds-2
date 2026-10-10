@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 void selectionSort(int arr[], int n) {
     int i, j, min_idx, temp;
     // Move a fronteira do subarray não ordenado um por um
