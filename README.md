@@ -2,6 +2,8 @@
 
 Repositório de estudos da disciplina **Algoritmos e Estruturas de Dados 2**. Aqui estão reunidos, em um só lugar, os **códigos em C**, os **guias de estudo** e as **demonstrações interativas** dos principais algoritmos de ordenação e das estruturas de dados vistas na disciplina (listas, filas, pilhas e células).
 
+Este repositório foi feito por **Gabriel Cardoso Alvares de Oliveira**. Para **praticar** o que está aqui, existe um repositório só de exercícios, o [**Exercicios-Estudos-Aeds-2-**](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), com listas de exercícios e soluções em C.
+
 A ideia do projeto é simples: para cada assunto, você tem três formas de aprender.
 
 | Formato | O que é | Para que serve |
@@ -24,6 +26,8 @@ A ideia do projeto é simples: para cada assunto, você tem três formas de apre
 8. [Como funciona o index.html](#-como-funciona-o-indexhtml)
 9. [Publicar no GitHub Pages](#-publicar-no-github-pages-opcional)
 10. [Sugestão de roteiro de estudo](#-sugestão-de-roteiro-de-estudo)
+11. [Repositório de exercícios](#-repositório-de-exercícios)
+12. [Autor](#-autor)
 
 ---
 
@@ -327,6 +331,7 @@ Uma ordem que vai do mais simples ao mais avançado:
 4. **Counting, Radix e Bucket Sort:** como ordenar sem comparar elementos.
 5. **Células, listas, filas e pilhas:** ponteiros, alocação dinâmica e estruturas encadeadas.
 6. **Fila circular e materiais da pasta Estudos:** aprofundamento.
+7. **Exercícios:** pratique no [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), que segue a mesma ordem de assuntos deste.
 
 **Dica de estudo para cada algoritmo:**
 
@@ -337,10 +342,40 @@ Uma ordem que vai do mais simples ao mais avançado:
 
 ---
 
+## 🏋️ Repositório de exercícios
+
+Estudar só lendo não basta para fixar estruturas de dados. Por isso existe um repositório separado, só de prática:
+
+**👉 [Exercicios-Estudos-Aeds-2-](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-)**
+
+| Repositório | Papel | O que tem |
+|---|---|---|
+| **Estudos-Aeds-2** (este) | Teoria e referência | Guias (`.md`), demonstrações (`.html`) e códigos em C |
+| [**Exercicios-Estudos-Aeds-2-**](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-) | Prática | Listas de exercícios (PDF) em dois níveis, básico e intermediário, e soluções em C |
+
+Os exercícios seguem a mesma ordem deste repositório (**células → listas → filas → pilha → ordenações**) e usam os mesmos arquivos e nomes (`Celula.c`, `LIstaFlexivel.c`, `testefilacircular.c`, `MAX`, `ant` e assim por diante).
+
+Fluxo sugerido:
+
+1. Estude o assunto aqui (guia, demonstração e código).
+2. Resolva os exercícios daquele assunto no repositório de exercícios.
+3. Volte e confira o resultado nas demonstrações interativas.
+
+---
+
 ## 📝 Resumo
 
 - **8 algoritmos de ordenação**, cada um com guia, demonstração interativa e código em C.
 - **Listas, filas, pilhas e células** em C, com uma operação por arquivo.
 - **Materiais extras** na pasta `Estudos/`.
+- **Repositório de exercícios** complementar: [Exercicios-Estudos-Aeds-2-](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-).
 - **`index.html`** para navegar por tudo, gerado por `gerar_index.py`.
 - Tudo pensado para **estudar por três caminhos**: ler, ver e programar.
+
+---
+
+## 👤 Autor
+
+**Gabriel Cardoso Alvares de Oliveira**
+
+Autor deste repositório de estudos e do [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-) que o complementa.
