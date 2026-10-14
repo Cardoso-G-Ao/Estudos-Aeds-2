@@ -1,6 +1,6 @@
 # 📚 Estudos de AEDS 2
 
-Repositório de estudos da disciplina **Algoritmos e Estruturas de Dados 2**. Aqui estão reunidos, em um só lugar, os **códigos em C**, os **guias de estudo** e as **demonstrações interativas** dos principais algoritmos de ordenação e das estruturas de dados vistas na disciplina (listas, filas, pilhas e células).
+Repositório de estudos da disciplina **Algoritmos e Estruturas de Dados 2**. Aqui estão reunidos, em um só lugar, os **códigos em C**, os **guias de estudo** e as **demonstrações interativas** dos principais algoritmos de ordenação, dos algoritmos de pesquisa, dos fundamentos de complexidade e das estruturas de dados vistas na disciplina (listas, filas, pilhas e células).
 
 Este repositório foi feito por **Gabriel Cardoso Alvares de Oliveira**. Para **praticar** o que está aqui, existe um repositório só de exercícios, o [**Exercicios-Estudos-Aeds-2-**](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), com listas de exercícios e soluções em C.
 
@@ -12,22 +12,26 @@ A ideia do projeto é simples: para cada assunto, você tem três formas de apre
 | 🎮 **Demonstração** (`.html`) | Página interativa que executa o algoritmo passo a passo | Ver o algoritmo acontecendo |
 | 💻 **Código** (`.c`) | Implementação em C, pronta para compilar | Praticar e testar |
 
+> 📌 Nem todo assunto tem os três formatos: **Bubble Sort**, **Pesquisa Sequencial**, **Pesquisa Binária** e **Complexidade** têm guia e código, e a demonstração interativa ainda não foi feita.
+
 ---
 
 ## 📑 Sumário
 
 1. [Como navegar pelo projeto](#-como-navegar-pelo-projeto)
 2. [Estrutura de pastas](#-estrutura-de-pastas)
-3. [Algoritmos de ordenação](#-algoritmos-de-ordenação)
-4. [Estruturas de dados](#-estruturas-de-dados)
-5. [Pasta Estudos](#-pasta-estudos)
-6. [Como usar as demonstrações](#-como-usar-as-demonstrações)
-7. [Como compilar e executar os códigos em C](#-como-compilar-e-executar-os-códigos-em-c)
-8. [Como funciona o index.html](#-como-funciona-o-indexhtml)
-9. [Publicar no GitHub Pages](#-publicar-no-github-pages-opcional)
-10. [Sugestão de roteiro de estudo](#-sugestão-de-roteiro-de-estudo)
-11. [Repositório de exercícios](#-repositório-de-exercícios)
-12. [Autor](#-autor)
+3. [Complexidade de algoritmos](#-complexidade-de-algoritmos)
+4. [Algoritmos de ordenação](#-algoritmos-de-ordenação)
+5. [Algoritmos de pesquisa](#-algoritmos-de-pesquisa)
+6. [Estruturas de dados](#-estruturas-de-dados)
+7. [Pasta Estudos](#-pasta-estudos)
+8. [Como usar as demonstrações](#-como-usar-as-demonstrações)
+9. [Como compilar e executar os códigos em C](#-como-compilar-e-executar-os-códigos-em-c)
+10. [Como funciona o index.html](#-como-funciona-o-indexhtml)
+11. [Publicar no GitHub Pages](#-publicar-no-github-pages-opcional)
+12. [Sugestão de roteiro de estudo](#-sugestão-de-roteiro-de-estudo)
+13. [Repositório de exercícios](#-repositório-de-exercícios)
+14. [Autor](#-autor)
 
 ---
 
@@ -59,7 +63,12 @@ Estudos-Aeds-2/
 ├── gerar_index.py             # script que gera o index.html
 ├── README.md                  # este arquivo
 │
-├── Ordenacoes/                # 8 algoritmos de ordenação
+├── Complexidade/              # fundamentos de complexidade de algoritmos
+│   ├── Guiacomplexidade.md    # guia: notação O, Ω, Θ, classes e como analisar um código
+│   └── complexidade.c         # conta operações para ver o crescimento de cada classe
+│
+├── Ordenacoes/                # 9 algoritmos de ordenação
+│   ├── Bubble/                # Bubble Sort
 │   ├── Insercao/              # Insertion Sort
 │   ├── Selecao/               # Selection Sort
 │   ├── Counting/              # Counting Sort
@@ -68,7 +77,11 @@ Estudos-Aeds-2/
 │   ├── Merge/                 # Merge Sort
 │   ├── Quick/                 # Quick Sort
 │   └── Heap/                  # Heap Sort
-│       (cada pasta: guia .md + demonstração .html + código .c)
+│       (cada pasta: guia .md + código .c; a maioria também tem demonstração .html)
+│
+├── Pesquisa/                  # algoritmos de pesquisa (busca)
+│   ├── PesquisaSequencial/    # guia + código da pesquisa sequencial
+│   └── PesquisaBinaria/       # guia + código da pesquisa binária
 │
 ├── LIsta/                     # listas
 │   ├── LIstaSimples/          # lista com vetor (array)
@@ -99,14 +112,28 @@ Estudos-Aeds-2/
 
 ---
 
+## 📏 Complexidade de algoritmos
+
+A pasta `Complexidade/` explica de onde vêm os termos usados em todos os outros guias do repositório (`O(n)`, `O(n log n)`, melhor e pior caso, *in-place*...). Ela responde a uma pergunta central: **quanto um algoritmo "custa" quando o tamanho do problema cresce?**
+
+| Arquivo | O que tem |
+|---|---|
+| `Guiacomplexidade.md` | Guia com os conceitos: por que analisar algoritmos, melhor/pior/caso médio, contagem de operações, notação assintótica (`O`, `Ω`, `Θ`), regras de simplificação, classes de complexidade, análise de código com 5 exemplos, algoritmos recursivos, complexidade de espaço e uma tabela com a complexidade de todos os algoritmos deste repositório |
+| `complexidade.c` | Código em C que **conta operações** (em vez de medir segundos) de funções `O(1)`, `O(log n)`, `O(n)`, `O(n log n)`, `O(n²)` e `O(2^n)`, para você ver a "forma" do crescimento com `n = 10`, `100` e `1000` |
+
+> 💡 Vale ler esse guia **antes** dos algoritmos de ordenação e de pesquisa: o resto do repositório usa esse vocabulário.
+
+---
+
 ## 🔢 Algoritmos de ordenação
 
-A pasta `Ordenacoes/` tem um guia, uma demonstração interativa e um código em C para cada um dos oito algoritmos abaixo.
+A pasta `Ordenacoes/` tem um guia e um código em C para cada um dos nove algoritmos abaixo. Todos têm demonstração interativa, **exceto o Bubble Sort**, que por enquanto tem só guia e código.
 
 ### Resumo comparativo
 
 | Algoritmo | Ideia em uma frase | Melhor caso | Caso médio | Pior caso | Memória extra | Estável |
 |---|---|---|---|---|---|---|
+| **Bubble Sort** | Compara vizinhos e troca os fora de ordem; o maior "sobe" até o fim a cada passada | O(n) | O(n²) | O(n²) | O(1) | Sim |
 | **Insertion Sort** | Insere cada elemento na posição certa da parte já ordenada | O(n) | O(n²) | O(n²) | O(1) | Sim |
 | **Selection Sort** | Seleciona o menor elemento restante e o coloca na posição | O(n²) | O(n²) | O(n²) | O(1) | Não |
 | **Counting Sort** | Conta quantas vezes cada valor aparece | O(n + k) | O(n + k) | O(n + k) | O(n + k) | Sim |
@@ -120,14 +147,14 @@ A pasta `Ordenacoes/` tem um guia, uma demonstração interativa e um código em
 
 ### Como os algoritmos se agrupam
 
-- **Simples, de O(n²):** Insertion Sort e Selection Sort. São fáceis de entender e ótimos para começar, mas lentos em listas grandes.
+- **Simples, de O(n²):** Bubble Sort, Insertion Sort e Selection Sort. São fáceis de entender e ótimos para começar, mas lentos em listas grandes.
 - **Dividir para conquistar, de O(n log n):** Merge Sort e Quick Sort. É a base do que as bibliotecas padrão usam.
 - **Baseado em estrutura de dados:** Heap Sort, que usa uma árvore binária guardada em um array.
 - **Sem comparar elementos:** Counting Sort, Radix Sort e Bucket Sort. Usam os próprios valores como índices e podem ser lineares, mas só funcionam em condições específicas (por exemplo, inteiros em um intervalo conhecido).
 
 ### O que tem em cada pasta de algoritmo
 
-Cada guia segue o mesmo modelo, para facilitar a comparação entre eles:
+Cada guia segue o mesmo modelo, para facilitar a comparação entre eles (o do Bubble Sort inclui a parada antecipada, que o torna adaptável, com melhor caso O(n)):
 
 1. **Como funciona**, com uma analogia do dia a dia;
 2. **Exemplo passo a passo** com um array concreto;
@@ -136,6 +163,35 @@ Cada guia segue o mesmo modelo, para facilitar a comparação entre eles:
 5. **Código em C**;
 6. **Quando usar**;
 7. **Resumo rápido**.
+
+---
+
+## 🔍 Algoritmos de pesquisa
+
+A pasta `Pesquisa/` reúne os dois algoritmos clássicos de busca de um valor em um array. Cada um tem um guia (`.md`) e um código em C (`.c`), no mesmo modelo dos guias de ordenação (analogia, exemplo passo a passo, complexidade, quando usar).
+
+| Algoritmo | Ideia em uma frase | Melhor caso | Caso médio | Pior caso | Memória extra | Precisa de dados ordenados? |
+|---|---|---|---|---|---|---|
+| **Pesquisa Sequencial** | Olha os elementos um a um, do início ao fim | O(1) | O(n) | O(n) | O(1) | Não |
+| **Pesquisa Binária** | Olha o elemento do meio e descarta metade a cada passo | O(1) | O(log n) | O(log n) | O(1) iterativa · O(log n) recursiva | **Sim** |
+
+### O que tem em cada pasta
+
+| Pasta | Guia | Código |
+|---|---|---|
+| `PesquisaSequencial/` | `GuiaPesquisaSequencial.md`: analogia do chaveiro, exemplo, variações (sentinela, em array ordenado, mover para a frente, transposição) e comparação com a binária | `PesquisaSequencial.c`: pesquisa sequencial com contador de comparações e a **versão com sentinela** |
+| `PesquisaBinaria/` | `GuiaPesquisaBinaria.md`: analogia da lista telefônica, exemplos com valor encontrado e não encontrado, pré-requisitos e elementos repetidos | `PesquisaBinaria.c`: versão **iterativa** (com contador de passos) e versão **recursiva** |
+
+### Sequencial × Binária
+
+| | Sequencial | Binária |
+|---|---|---|
+| Dados | qualquer ordem | **precisam estar ordenados** |
+| Estrutura | array ou lista encadeada | precisa de acesso direto (array) |
+| 1.000.000 de elementos (pior caso) | 1.000.000 comparações | cerca de 20 comparações |
+| Quando usar | dados desordenados, poucos elementos ou lista encadeada | dados ordenados e muitas buscas |
+
+> 💡 A pesquisa binária depende de ordenação: por isso o estudo de **ordenação** vem antes no roteiro.
 
 ---
 
@@ -270,7 +326,7 @@ A flag `-Wall` ativa os avisos do compilador, o que ajuda a achar erros cedo.
 
 ### Observações importantes
 
-- **Arquivos com `main`:** a maioria dos códigos de listas, filas, pilhas, células e dos algoritmos de ordenação já vem com `main` e roda direto.
+- **Arquivos com `main`:** a maioria dos códigos de listas, filas, pilhas, células, de ordenação (como o `Bubblesort.c`), de pesquisa (`PesquisaSequencial.c` e `PesquisaBinaria.c`) e o `complexidade.c` já vêm com `main` e rodam direto.
 - **Arquivos só com a função:** alguns códigos de ordenação (como `insercao.c`, `selecao.c` e `countingsort.c`) trazem apenas a função do algoritmo. Para testá-los, escreva um `main` que crie um array e chame a função, ou copie a função para um arquivo seu.
 - **Entrada de dados:** vários códigos de listas e filas leem números com `scanf`. Digite os valores e termine a entrada com **Ctrl + D** (Linux e macOS) ou **Ctrl + Z** e Enter (Windows).
 - **Formato da entrada na fila encadeada e na pilha:** digite os números da primeira linha separados por espaço e **termine a sequência com uma letra** (por exemplo, `10 20 30 x`). Nos arquivos que inserem um valor, digite-o na linha seguinte (por exemplo, `40`).
@@ -325,13 +381,15 @@ O GitHub não executa páginas HTML dentro da visualização de arquivos, mas vo
 
 Uma ordem que vai do mais simples ao mais avançado:
 
-1. **Insertion Sort e Selection Sort:** a lógica básica de ordenar.
-2. **Merge Sort e Quick Sort:** a estratégia de dividir para conquistar e a recursão.
-3. **Heap Sort:** uma estrutura de dados (o heap) a serviço da ordenação.
-4. **Counting, Radix e Bucket Sort:** como ordenar sem comparar elementos.
-5. **Células, listas, filas e pilhas:** ponteiros, alocação dinâmica e estruturas encadeadas.
-6. **Fila circular e materiais da pasta Estudos:** aprofundamento.
-7. **Exercícios:** pratique no [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), que segue a mesma ordem de assuntos deste.
+1. **Complexidade:** o vocabulário (`O`, melhor e pior caso) usado em todos os guias.
+2. **Bubble, Insertion e Selection Sort:** a lógica básica de ordenar.
+3. **Merge Sort e Quick Sort:** a estratégia de dividir para conquistar e a recursão.
+4. **Heap Sort:** uma estrutura de dados (o heap) a serviço da ordenação.
+5. **Counting, Radix e Bucket Sort:** como ordenar sem comparar elementos.
+6. **Pesquisa sequencial e binária:** como achar um valor, e por que ter os dados ordenados faz diferença.
+7. **Células, listas, filas e pilhas:** ponteiros, alocação dinâmica e estruturas encadeadas.
+8. **Fila circular e materiais da pasta Estudos:** aprofundamento.
+9. **Exercícios:** pratique no [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), que segue a mesma ordem de assuntos deste.
 
 **Dica de estudo para cada algoritmo:**
 
@@ -365,7 +423,9 @@ Fluxo sugerido:
 
 ## 📝 Resumo
 
-- **8 algoritmos de ordenação**, cada um com guia, demonstração interativa e código em C.
+- **9 algoritmos de ordenação**, cada um com guia e código em C (e demonstração interativa em oito deles).
+- **2 algoritmos de pesquisa** (sequencial e binária), com guia e código em C.
+- **Guia de complexidade** de algoritmos, com um código em C que conta operações.
 - **Listas, filas, pilhas e células** em C, com uma operação por arquivo.
 - **Materiais extras** na pasta `Estudos/`.
 - **Repositório de exercícios** complementar: [Exercicios-Estudos-Aeds-2-](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-).
