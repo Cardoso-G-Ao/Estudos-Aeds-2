@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo: Bubble Sort</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f5;--panel:#fff;--ink:#14232e;--mute:#5d707c;--line:#cfdbe1;--acc:#0f7c8a;--hot:#e0a100;--ok:#2e8b57;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}}
+:root[data-theme="dark"]{--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 14px;letter-spacing:-.01em}
+h3{font-size:.85rem;font-weight:600;color:var(--mute);margin:18px 0 8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+button,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+button:hover{border-color:var(--acc)}
+.tabs button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{color:#06222a}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#desc{margin:0 0 14px;max-width:70ch}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:8px}
+.ctl label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mute);flex:1;min-width:220px}
+input[type=text]{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.stage{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:6px 16px 18px;margin-top:10px}
+.row,.cols{display:flex;flex-wrap:wrap;gap:6px}
+.cols{gap:8px;align-items:flex-start}
+.w{display:flex;flex-direction:column;align-items:center;gap:2px}
+.i{font-size:.7rem;color:var(--mute)}
+.c{min-width:44px;height:44px;padding:0 8px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);font-weight:800;font-variant-numeric:tabular-nums;transition:background .25s,border-color .25s}
+.c.hot{background:var(--hot);border-color:var(--hot);color:#14232e}
+.c.on{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .c.on{color:#06222a}
+.c.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.dg{border-bottom:3px solid var(--acc)}
+.z{opacity:.35}
+.col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px}
+.ch{font-size:.8rem;font-weight:600;color:var(--mute)}
+.stack{min-height:52px;width:100%;box-sizing:border-box;border:1.5px dashed var(--line);border-radius:8px;padding:4px;display:flex;flex-direction:column;gap:4px;align-items:center}
+#msg{min-height:3em;margin:14px 0 4px;font-weight:600}
+#pos{font-size:.85rem;color:var(--mute)}
+.spd{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mute);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.c{transition:none}}
+.c.dim{opacity:.35}.c.lo{border-color:var(--acc);border-width:2.5px}.leg{font-size:.85rem;color:var(--mute);margin:10px 0 0;max-width:70ch}
+.alvo{flex:0 0 140px;min-width:140px!important}.tag{color:var(--acc);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<h1>Bubble Sort: demonstração interativa</h1>
+<p id="desc"></p>
+<div class="ctl">
+  <label>Números (separados por vírgula)<input type="text" id="inp"></label>
+  <button id="apply">Aplicar</button>
+  <button id="rnd">Sortear</button>
+</div>
+<div class="ctl">
+  <button id="prev">Voltar</button>
+  <button id="next">Próximo passo</button>
+  <button id="play">Reproduzir</button>
+  <span id="pos"></span>
+</div>
+<div class="spd"><label for="spd">Velocidade</label><input type="range" id="spd" min="200" max="1500" step="50" value="1000"></div>
+<div class="stage" id="stage"></div>
+<p class="leg">Âmbar: par comparado que já estava em ordem. Azul-petróleo: par que acabou de ser trocado. Verde: já na posição final.</p>
+<div id="msg" aria-live="polite"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const cell=(t,i,k,h)=>({t:t===null?'':t,i:i===undefined?'':i,k:k||'',h});
+const row=(label,cells)=>({type:'row',label,cells});
+
+function bubble(a){
+  const F=[],n=a.length,arr=a.slice();let comp=0,trocas=0;
+  const S=(msg,fixFrom,j=-1,troca=false)=>F.push({msg,blocks:[row('Array',arr.map((t,x)=>cell(t,x,x>=fixFrom?'ok':(x===j||x===j+1)?(troca?'on':'hot'):'')))]});
+  S('Array inicial. A cada passada, comparamos pares vizinhos e trocamos os que estão fora de ordem. O maior elemento restante "sobe" até o fim.',n);
+  let fixFrom=n;
+  for(let i=0;i<n-1;i++){
+    let trocou=false;
+    for(let j=0;j<n-1-i;j++){
+      comp++;
+      const p=arr[j],q=arr[j+1];
+      if(p>q){
+        arr[j]=q;arr[j+1]=p;trocas++;trocou=true;
+        S(`Passada ${i+1}: ${p} > ${q}, fora de ordem. Troca as posições ${j} e ${j+1}.`,fixFrom,j,true);
+      }else S(`Passada ${i+1}: ${p} ≤ ${q}, já estão em ordem. Nada a trocar.`,fixFrom,j,false);
+    }
+    fixFrom=n-1-i;
+    if(!trocou){
+      fixFrom=0;
+      S(`Fim da passada ${i+1}: nenhuma troca aconteceu, então o array já está ordenado e o algoritmo para mais cedo.`,fixFrom);
+      break;
+    }
+    S(`Fim da passada ${i+1}: o maior elemento restante (${arr[fixFrom]}) chegou à posição ${fixFrom} e não precisa mais ser mexido.`,fixFrom);
+  }
+  S(`Pronto! Array ordenado, com ${comp} comparações e ${trocas} trocas.`,0);
+  return F;
+}
+const A={
+  bubble:{name:'Bubble Sort',fn:bubble,max:99,val:'5, 1, 4, 2, 8',d:'Percorre o array várias vezes comparando vizinhos e trocando os que estão fora de ordem. A cada passada o maior elemento restante sobe até o fim. Com a parada antecipada, o melhor caso é O(n); o pior e o médio são O(n²).'}
+};
+
+let cur='bubble',F=[],idx=0,timer=null;
+
+const cellH=c=>`<div class="w"><div class="c ${c.k}">${c.h!==undefined?c.h:c.t}</div>${c.i!==''?`<span class="i">${c.i}</span>`:''}</div>`;
+function draw(f){
+  $('stage').innerHTML=f.blocks.map(b=>`<h3>${b.label}</h3><div class="row">${b.cells.map(cellH).join('')}</div>`).join('');
+  $('msg').textContent=f.msg;
+  $('pos').textContent=`Passo ${idx+1} de ${F.length}`;
+  $('prev').disabled=idx===0;$('next').disabled=idx===F.length-1;
+}
+function go(n){idx=Math.max(0,Math.min(F.length-1,n));draw(F[idx])}
+function stop(){clearInterval(timer);timer=null;$('play').textContent='Reproduzir'}
+function start(){clearInterval(timer);$('play').textContent='Pausar';timer=setInterval(()=>{if(idx>=F.length-1){stop();return}go(idx+1)},1700-$('spd').value)}
+function load(){
+  stop();
+  const a=A[cur],m=a.max;
+  let r=$('inp').value.split(/[\s,;]+/).filter(Boolean).map(Number);
+  if(r.length<2||r.length>12||r.some(x=>!Number.isInteger(x)||x<0||x>m)){$('msg').textContent=`Digite de 2 a 12 números inteiros entre 0 e ${m}, separados por vírgula.`;return}
+  let x=null,aviso=false;
+  if(a.alvo){
+    const v=$('alvo').value.trim();x=Number(v);
+    if(v===''||!Number.isInteger(x)||x<0||x>m){$('msg').textContent=`O valor procurado deve ser um inteiro entre 0 e ${m}.`;return}
+  }
+  if(a.ordena&&r.some((v,i)=>i&&r[i-1]>v)){r=r.slice().sort((p,q)=>p-q);aviso=true}
+  a.val=r.join(', ');$('inp').value=a.val;
+  F=a.fn(r,x,aviso);go(0);
+}
+function pick(k){
+  cur=k;stop();
+  $('desc').textContent=A[k].d;$('inp').value=A[k].val;
+  if(A[k].alvo)$('alvo').value=A[k].x;
+  load();
+}
+$('apply').onclick=load;
+$('inp').onkeydown=e=>{if(e.key==='Enter')load()};
+if($('alvo'))$('alvo').onkeydown=e=>{if(e.key==='Enter')load()};
+$('rnd').onclick=()=>{
+  const m=A[cur].max,v=Array.from({length:8},()=>Math.floor(Math.random()*(m+1)));
+  $('inp').value=v.join(', ');
+  if(A[cur].alvo)$('alvo').value=Math.random()<.5?v[Math.floor(Math.random()*v.length)]:Math.floor(Math.random()*(m+1));
+  load();
+};
+$('prev').onclick=()=>{stop();go(idx-1)};
+$('next').onclick=()=>{stop();go(idx+1)};
+$('play').onclick=()=>{if(timer){stop();return}if(idx>=F.length-1)go(0);start()};
+$('spd').oninput=()=>{if(timer)start()};
+pick('bubble');
+</script>
+</body>
+</html>

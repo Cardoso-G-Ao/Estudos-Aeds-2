@@ -12,7 +12,7 @@ A ideia do projeto é simples: para cada assunto, você tem três formas de apre
 | 🎮 **Demonstração** (`.html`) | Página interativa que executa o algoritmo passo a passo | Ver o algoritmo acontecendo |
 | 💻 **Código** (`.c`) | Implementação em C, pronta para compilar | Praticar e testar |
 
-> 📌 Nem todo assunto tem os três formatos: **Bubble Sort**, **Pesquisa Sequencial**, **Pesquisa Binária** e **Complexidade** têm guia e código, e a demonstração interativa ainda não foi feita.
+> 📌 Só o assunto **Complexidade** não tem demonstração interativa: ele tem guia e código.
 
 ---
 
@@ -77,11 +77,11 @@ Estudos-Aeds-2/
 │   ├── Merge/                 # Merge Sort
 │   ├── Quick/                 # Quick Sort
 │   └── Heap/                  # Heap Sort
-│       (cada pasta: guia .md + código .c; a maioria também tem demonstração .html)
+│       (cada pasta: guia .md + demonstração .html + código .c)
 │
 ├── Pesquisa/                  # algoritmos de pesquisa (busca)
-│   ├── PesquisaSequencial/    # guia + código da pesquisa sequencial
-│   └── PesquisaBinaria/       # guia + código da pesquisa binária
+│   ├── PesquisaSequencial/    # guia + demonstração + código da pesquisa sequencial
+│   └── PesquisaBinaria/       # guia + demonstração + código da pesquisa binária
 │
 ├── LIsta/                     # listas
 │   ├── LIstaSimples/          # lista com vetor (array)
@@ -127,7 +127,7 @@ A pasta `Complexidade/` explica de onde vêm os termos usados em todos os outros
 
 ## 🔢 Algoritmos de ordenação
 
-A pasta `Ordenacoes/` tem um guia e um código em C para cada um dos nove algoritmos abaixo. Todos têm demonstração interativa, **exceto o Bubble Sort**, que por enquanto tem só guia e código.
+A pasta `Ordenacoes/` tem um guia, uma demonstração interativa e um código em C para cada um dos nove algoritmos abaixo.
 
 ### Resumo comparativo
 
@@ -168,7 +168,7 @@ Cada guia segue o mesmo modelo, para facilitar a comparação entre eles (o do B
 
 ## 🔍 Algoritmos de pesquisa
 
-A pasta `Pesquisa/` reúne os dois algoritmos clássicos de busca de um valor em um array. Cada um tem um guia (`.md`) e um código em C (`.c`), no mesmo modelo dos guias de ordenação (analogia, exemplo passo a passo, complexidade, quando usar).
+A pasta `Pesquisa/` reúne os dois algoritmos clássicos de busca de um valor em um array. Cada um tem um guia (`.md`), uma demonstração interativa (`.html`) e um código em C (`.c`), no mesmo modelo dos guias de ordenação (analogia, exemplo passo a passo, complexidade, quando usar).
 
 | Algoritmo | Ideia em uma frase | Melhor caso | Caso médio | Pior caso | Memória extra | Precisa de dados ordenados? |
 |---|---|---|---|---|---|---|
@@ -177,10 +177,10 @@ A pasta `Pesquisa/` reúne os dois algoritmos clássicos de busca de um valor em
 
 ### O que tem em cada pasta
 
-| Pasta | Guia | Código |
-|---|---|---|
-| `PesquisaSequencial/` | `GuiaPesquisaSequencial.md`: analogia do chaveiro, exemplo, variações (sentinela, em array ordenado, mover para a frente, transposição) e comparação com a binária | `PesquisaSequencial.c`: pesquisa sequencial com contador de comparações e a **versão com sentinela** |
-| `PesquisaBinaria/` | `GuiaPesquisaBinaria.md`: analogia da lista telefônica, exemplos com valor encontrado e não encontrado, pré-requisitos e elementos repetidos | `PesquisaBinaria.c`: versão **iterativa** (com contador de passos) e versão **recursiva** |
+| Pasta | Guia | Demonstração | Código |
+|---|---|---|---|
+| `PesquisaSequencial/` | `GuiaPesquisaSequencial.md`: analogia do chaveiro, exemplo, variações (sentinela, em array ordenado, mover para a frente, transposição) e comparação com a binária | `Demo_ Pesquisa Sequencial.html`: percorre o array posição por posição até achar o valor ou chegar ao fim | `PesquisaSequencial.c`: pesquisa sequencial com contador de comparações e a **versão com sentinela** |
+| `PesquisaBinaria/` | `GuiaPesquisaBinaria.md`: analogia da lista telefônica, exemplos com valor encontrado e não encontrado, pré-requisitos e elementos repetidos | `Demo_ Pesquisa Binaria.html`: mostra `esq`, `meio` e `dir` e a metade descartada a cada passo | `PesquisaBinaria.c`: versão **iterativa** (com contador de passos) e versão **recursiva** |
 
 ### Sequencial × Binária
 
@@ -285,20 +285,22 @@ A pasta `Estudos/` guarda materiais extras:
 
 ## 🎮 Como usar as demonstrações
 
-As demonstrações de **Counting, Radix, Bucket, Quick e Heap Sort** funcionam assim:
+As demonstrações de **Counting, Radix, Bucket, Quick, Heap e Bubble Sort** e das **pesquisas sequencial e binária** funcionam assim:
 
 1. **Digite seus números**, separados por vírgula (de 2 a 12 números), ou clique em **Sortear**.
 2. Clique em **Aplicar** para carregar.
-3. Use **Próximo passo** e **Voltar** para andar quadro a quadro, ou **Reproduzir** para ver a animação sozinha. A barra de **Velocidade** controla o ritmo.
-4. Leia a frase abaixo da animação: ela explica o que acabou de acontecer.
+3. Nas pesquisas, preencha também o campo **Valor procurado** (a pesquisa binária coloca os números em ordem crescente sozinha, porque exige array ordenado).
+4. Use **Próximo passo** e **Voltar** para andar quadro a quadro, ou **Reproduzir** para ver a animação sozinha. A barra de **Velocidade** controla o ritmo.
+5. Leia a frase abaixo da animação: ela explica o que acabou de acontecer.
 
-**Valores aceitos:** Counting Sort, de 0 a 15 · Radix Sort, de 0 a 999 · Bucket, Quick e Heap Sort, de 0 a 99.
+**Valores aceitos:** Counting Sort, de 0 a 15 · Radix Sort, de 0 a 999 · Bucket, Quick, Heap e Bubble Sort e as duas pesquisas, de 0 a 99.
 
-**O que cada cor significa** (nas demonstrações de Quick e Heap Sort):
+**O que cada cor significa** (nas demonstrações de Quick, Heap e Bubble Sort e das pesquisas):
 
-- **Azul-petróleo:** pivô (Quick) ou filho maior / posição da troca (Heap);
+- **Azul-petróleo:** pivô (Quick), filho maior / posição da troca (Heap), par que acabou de trocar (Bubble) ou elemento do meio (Pesquisa Binária);
 - **Âmbar:** elemento sendo comparado ou nó atual;
-- **Verde:** elemento já na posição final.
+- **Verde:** elemento já na posição final ou valor encontrado;
+- **Esmaecido:** fora do trecho atual (Quick), já verificado (Pesquisa Sequencial) ou metade já descartada (Pesquisa Binária).
 
 > As demonstrações são arquivos HTML independentes. Basta dar dois cliques no arquivo para abrir no navegador. Algumas usam fontes e bibliotecas da internet, então precisam de conexão.
 
@@ -423,8 +425,8 @@ Fluxo sugerido:
 
 ## 📝 Resumo
 
-- **9 algoritmos de ordenação**, cada um com guia e código em C (e demonstração interativa em oito deles).
-- **2 algoritmos de pesquisa** (sequencial e binária), com guia e código em C.
+- **9 algoritmos de ordenação**, cada um com guia, demonstração interativa e código em C.
+- **2 algoritmos de pesquisa** (sequencial e binária), também com guia, demonstração interativa e código em C.
 - **Guia de complexidade** de algoritmos, com um código em C que conta operações.
 - **Listas, filas, pilhas e células** em C, com uma operação por arquivo.
 - **Materiais extras** na pasta `Estudos/`.
