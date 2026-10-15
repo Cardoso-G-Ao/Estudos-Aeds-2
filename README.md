@@ -76,7 +76,8 @@ Estudos-Aeds-2/
 │   ├── Bucket/                # Bucket Sort
 │   ├── Merge/                 # Merge Sort
 │   ├── Quick/                 # Quick Sort
-│   └── Heap/                  # Heap Sort
+│   ├── Heap/                  # Heap Sort
+│   └── OrdenacaoParcial/      # ordenação parcial: os k menores, em ordem
 │       (cada pasta: guia .md + demonstração .html + código .c)
 │
 ├── Pesquisa/                  # algoritmos de pesquisa (busca)
@@ -163,6 +164,19 @@ Cada guia segue o mesmo modelo, para facilitar a comparação entre eles (o do B
 5. **Código em C**;
 6. **Quando usar**;
 7. **Resumo rápido**.
+
+### Ordenação parcial
+
+A pasta `Ordenacoes/OrdenacaoParcial/` resolve um problema diferente: em vez de ordenar os n elementos, queremos só os **k menores, já em ordem**, nas k primeiras posições (o "top-k"). O resto do array fica sem ordem. Ela tem o guia (`OrdenacaoParcial.md`), uma demonstração com uma aba para cada método (`Demo_ Ordenacao Parcial.html`) e o código em C (`OrdenacaoParcial.c`).
+
+| Método | Ideia em uma frase | Tempo |
+|---|---|---|
+| **Seleção parcial** | Repete só k vezes o passo do Selection Sort | O(n·k) |
+| **Inserção parcial** | Mantém os k primeiros ordenados; só entra quem for menor que o maior deles | O(n·k) no pior caso, O(n) no melhor |
+| **Heapsort parcial** | Monta um min-heap e retira o menor k vezes | O(n + k·log n) |
+| **Quicksort parcial** | Particiona como o Quick Sort, mas ignora os lados que não têm posições entre as k primeiras | O(n + k·log k) no caso médio |
+
+A vantagem aparece quando **k é muito menor que n**. Quando k = n, vira ordenação completa.
 
 ---
 
@@ -285,21 +299,22 @@ A pasta `Estudos/` guarda materiais extras:
 
 ## 🎮 Como usar as demonstrações
 
-As demonstrações de **Counting, Radix, Bucket, Quick, Heap e Bubble Sort** e das **pesquisas sequencial e binária** funcionam assim:
+As demonstrações de **Counting, Radix, Bucket, Quick, Heap e Bubble Sort**, da **ordenação parcial** e das **pesquisas sequencial e binária** funcionam assim:
 
 1. **Digite seus números**, separados por vírgula (de 2 a 12 números), ou clique em **Sortear**.
 2. Clique em **Aplicar** para carregar.
-3. Nas pesquisas, preencha também o campo **Valor procurado** (a pesquisa binária coloca os números em ordem crescente sozinha, porque exige array ordenado).
+3. Nas pesquisas, preencha também o campo **Valor procurado** (a pesquisa binária coloca os números em ordem crescente sozinha, porque exige array ordenado). Na ordenação parcial, escolha o método na aba e preencha o campo **Quantidade k** (de 1 até a quantidade de números).
 4. Use **Próximo passo** e **Voltar** para andar quadro a quadro, ou **Reproduzir** para ver a animação sozinha. A barra de **Velocidade** controla o ritmo.
 5. Leia a frase abaixo da animação: ela explica o que acabou de acontecer.
 
-**Valores aceitos:** Counting Sort, de 0 a 15 · Radix Sort, de 0 a 999 · Bucket, Quick, Heap e Bubble Sort e as duas pesquisas, de 0 a 99.
+**Valores aceitos:** Counting Sort, de 0 a 15 · Radix Sort, de 0 a 999 · Bucket, Quick, Heap e Bubble Sort, ordenação parcial e as duas pesquisas, de 0 a 99.
 
-**O que cada cor significa** (nas demonstrações de Quick, Heap e Bubble Sort e das pesquisas):
+**O que cada cor significa** (nas demonstrações de Quick, Heap e Bubble Sort, da ordenação parcial e das pesquisas):
 
 - **Azul-petróleo:** pivô (Quick), filho maior / posição da troca (Heap), par que acabou de trocar (Bubble) ou elemento do meio (Pesquisa Binária);
 - **Âmbar:** elemento sendo comparado ou nó atual;
 - **Verde:** elemento já na posição final ou valor encontrado;
+- **Sublinhado:** as k primeiras posições, onde ficam os k menores (ordenação parcial);
 - **Esmaecido:** fora do trecho atual (Quick), já verificado (Pesquisa Sequencial) ou metade já descartada (Pesquisa Binária).
 
 > As demonstrações são arquivos HTML independentes. Basta dar dois cliques no arquivo para abrir no navegador. Algumas usam fontes e bibliotecas da internet, então precisam de conexão.

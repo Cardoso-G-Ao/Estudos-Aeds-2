@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo: Ordenação Parcial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f5;--panel:#fff;--ink:#14232e;--mute:#5d707c;--line:#cfdbe1;--acc:#0f7c8a;--hot:#e0a100;--ok:#2e8b57;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}}
+:root[data-theme="dark"]{--bg:#0f1a20;--panel:#172831;--ink:#e6eef2;--mute:#8fa5b1;--line:#2a3f4b;--acc:#43c0cf;--hot:#f0b81f;--ok:#5cc08a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 14px;letter-spacing:-.01em}
+h3{font-size:.85rem;font-weight:600;color:var(--mute);margin:18px 0 8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+button,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+button:hover{border-color:var(--acc)}
+.tabs button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{color:#06222a}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#desc{margin:0 0 14px;max-width:70ch}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:8px}
+.ctl label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mute);flex:1;min-width:220px}
+input[type=text]{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.stage{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:6px 16px 18px;margin-top:10px}
+.row,.cols{display:flex;flex-wrap:wrap;gap:6px}
+.cols{gap:8px;align-items:flex-start}
+.w{display:flex;flex-direction:column;align-items:center;gap:2px}
+.i{font-size:.7rem;color:var(--mute)}
+.c{min-width:44px;height:44px;padding:0 8px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);font-weight:800;font-variant-numeric:tabular-nums;transition:background .25s,border-color .25s}
+.c.hot{background:var(--hot);border-color:var(--hot);color:#14232e}
+.c.on{background:var(--acc);border-color:var(--acc);color:#fff}
+:root:not([data-theme="light"]) .c.on{color:#06222a}
+.c.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.dg{border-bottom:3px solid var(--acc)}
+.z{opacity:.35}
+.col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px}
+.ch{font-size:.8rem;font-weight:600;color:var(--mute)}
+.stack{min-height:52px;width:100%;box-sizing:border-box;border:1.5px dashed var(--line);border-radius:8px;padding:4px;display:flex;flex-direction:column;gap:4px;align-items:center}
+#msg{min-height:3em;margin:14px 0 4px;font-weight:600}
+#pos{font-size:.85rem;color:var(--mute)}
+.spd{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mute);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.c{transition:none}}
+.c.dim{opacity:.35}.c.lo{border-color:var(--acc);border-width:2.5px}.leg{font-size:.85rem;color:var(--mute);margin:10px 0 0;max-width:70ch}
+.alvo{flex:0 0 140px;min-width:140px!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Ordenação Parcial: demonstração interativa</h1>
+<div class="tabs" role="group" aria-label="Método">
+  <button data-k="sel" aria-selected="true">Seleção parcial</button>
+  <button data-k="ins" aria-selected="false">Inserção parcial</button>
+  <button data-k="heap" aria-selected="false">Heapsort parcial</button>
+  <button data-k="quick" aria-selected="false">Quicksort parcial</button>
+</div>
+<p id="desc"></p>
+<div class="ctl">
+  <label>Números (separados por vírgula)<input type="text" id="inp"></label>
+  <label class="alvo">Quantidade k<input type="text" id="kk"></label>
+  <button id="apply">Aplicar</button>
+  <button id="rnd">Sortear</button>
+</div>
+<div class="ctl">
+  <button id="prev">Voltar</button>
+  <button id="next">Próximo passo</button>
+  <button id="play">Reproduzir</button>
+  <span id="pos"></span>
+</div>
+<div class="spd"><label for="spd">Velocidade</label><input type="range" id="spd" min="200" max="1500" step="50" value="1000"></div>
+<div class="stage" id="stage"></div>
+<p class="leg">Sublinhado: as k primeiras posições, onde ficam os k menores. Azul-petróleo: elemento em foco (menor atual, elemento inserido, nó do heap ou pivô). Âmbar: elemento sendo comparado. Verde: já na posição final (ou já retirado do heap). Esmaecido: fora do trecho atual. Contorno grosso (Quicksort): zona dos menores que o pivô.</p>
+<div id="msg" aria-live="polite"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const cell=(t,i,k,h)=>({t:t===null?'':t,i:i===undefined?'':i,k:k||'',h});
+const row=(label,cells)=>({type:'row',label,cells});
+// marca com sublinhado as k primeiras posições (onde ficam os k menores)
+const mk=(arr,k,f)=>arr.map((t,x)=>cell(t,x,(f(x)+(x<k?' dg':'')).trim()));
+const veze=k=>k===1?'vez':'vezes';
+
+function selecao(a,k){
+  const F=[],n=a.length,arr=a.slice();
+  const S=(msg,fix,menor=-1,j=-1)=>F.push({msg,blocks:[row(`Array (k = ${k})`,mk(arr,k,x=>x<fix?'ok':x===menor?'on':x===j?'hot':''))]});
+  S(`Queremos os ${k} menores, em ordem, nas ${k} primeiras posições (sublinhadas). Vamos repetir só ${k} ${veze(k)} o passo do Selection Sort.`,0);
+  for(let i=0;i<k;i++){
+    let menor=i;
+    S(`Passo ${i+1}: procura o menor valor entre as posições ${i} e ${n-1}. Por enquanto, o menor é ${arr[i]} (posição ${i}).`,i,menor);
+    for(let j=i+1;j<n;j++){
+      if(arr[j]<arr[menor]){menor=j;S(`${arr[j]} é menor que o menor atual: novo menor = ${arr[j]} (posição ${j}).`,i,menor,j)}
+      else S(`${arr[j]} não é menor que ${arr[menor]}. O menor continua sendo ${arr[menor]}.`,i,menor,j);
+    }
+    if(menor!==i){[arr[i],arr[menor]]=[arr[menor],arr[i]];S(`O menor encontrado é ${arr[i]}: troca as posições ${i} e ${menor}. A posição ${i} está definitiva.`,i+1)}
+    else S(`O menor (${arr[i]}) já está na posição ${i}. A posição ${i} está definitiva.`,i+1);
+  }
+  S(`Pronto! Os ${k} menores estão nas ${k} primeiras posições, em ordem. O restante não foi ordenado (e nem precisava).`,k);
+  return F;
+}
+
+function insercao(a,k){
+  const F=[],n=a.length,arr=a.slice();
+  const S=(msg,fim,on=-1,hot=-1)=>F.push({msg,blocks:[row(`Array (k = ${k})`,mk(arr,k,x=>fim?(x<k?'ok':''):x===on?'on':x===hot?'hot':''))]});
+  S(`Queremos os ${k} menores, em ordem, nas ${k} primeiras posições (sublinhadas). Primeiro, ordenamos esses ${k} primeiros com Insertion Sort.`,false);
+  for(let i=1;i<k;i++){
+    const ch=arr[i];let j=i-1;
+    while(j>=0&&arr[j]>ch){arr[j+1]=arr[j];j--}
+    arr[j+1]=ch;
+    S(`Insere ${ch} entre os ${i} primeiros: ele fica na posição ${j+1}.`,false,j+1);
+  }
+  S(`Os ${k} primeiros estão ordenados. O maior deles é ${arr[k-1]} (posição ${k-1}): quem for menor que ele entra no grupo.`,false,k-1);
+  for(let i=k;i<n;i++){
+    if(arr[i]<arr[k-1]){
+      const saiu=arr[k-1],ch=arr[i];
+      S(`Examina ${ch}: ${ch} < ${saiu}, então entra no grupo dos ${k} menores e o ${saiu} sai.`,false,k-1,i);
+      arr[i]=saiu;let j=k-2;
+      while(j>=0&&arr[j]>ch){arr[j+1]=arr[j];j--}
+      arr[j+1]=ch;
+      S(`${ch} entrou na posição ${j+1}. O ${saiu} saiu do grupo e foi para a posição ${i} (não se perde).`,false,j+1,i);
+    }else S(`Examina ${arr[i]}: não é menor que ${arr[k-1]}, o maior dos ${k}. É descartado e nada muda.`,false,k-1,i);
+  }
+  S(`Pronto! Os ${k} menores estão nas ${k} primeiras posições, em ordem. O restante ficou como estava.`,true);
+  return F;
+}
+
+function heap(a,k){
+  const F=[],n=a.length,arr=a.slice();let size=n;
+  const S=(msg,fim,on=-1,hot=[])=>F.push({msg,blocks:[row(`Array (k = ${k})`,mk(arr,k,x=>fim?(x<k?'ok':'dim'):x>=size?'ok':x===on?'on':hot.includes(x)?'hot':''))]});
+  function pen(m,i){
+    let menor=i;const e=2*i+1,d=2*i+2;
+    if(e<m&&arr[e]<arr[menor])menor=e;
+    if(d<m&&arr[d]<arr[menor])menor=d;
+    const filhos=[e,d].filter(c=>c<m);
+    if(menor!==i){
+      S(`Nó ${i} (${arr[i]}): o menor filho é ${arr[menor]} (posição ${menor}), menor que o pai. Troca e continua descendo.`,false,i,filhos);
+      [arr[i],arr[menor]]=[arr[menor],arr[i]];
+      pen(m,menor);
+    }else S(`Nó ${i} (${arr[i]}): ${filhos.length?'já é menor que os filhos':'não tem filhos'}. Está no lugar certo.`,false,i,filhos);
+  }
+  S(`Primeiro montamos um min-heap com o array todo: o pai tem de ser menor que os filhos (os filhos da posição i ficam em 2i+1 e 2i+2).`,false);
+  for(let i=Math.floor(n/2)-1;i>=0;i--)pen(n,i);
+  S(`Min-heap pronto: a raiz (posição 0) é o menor de todos, ${arr[0]}. Agora retiramos o menor ${k} ${veze(k)}.`,false,0);
+  for(let i=0;i<k;i++){
+    const v=arr[0],fim=n-1-i;
+    [arr[0],arr[fim]]=[arr[fim],arr[0]];size=fim;
+    S(`Retirada ${i+1}: o menor (${v}) sai da raiz e vai para a posição ${fim}, fora do heap (em verde).`,false,size>0?0:-1);
+    if(size>1)pen(size,0);
+  }
+  for(let i=0,j=n-1;i<j;i++,j--)[arr[i],arr[j]]=[arr[j],arr[i]];
+  S(`Inverte o array: os ${k} menores, que estavam no fim, vão para o início em ordem crescente. Pronto!`,true);
+  return F;
+}
+
+function quick(a,k){
+  const F=[],n=a.length,arr=a.slice(),fin=Array(n).fill(false);
+  const S=(msg,lo,hi,p=-1,i=-1,j=-1,end=false)=>F.push({msg,blocks:[row(`Array (k = ${k})`,mk(arr,k,x=>end?(x<k?'ok':'dim'):fin[x]?'ok':(x<lo||x>hi)?'dim':x===p?'on':x===j?'hot':(x<=i&&x>=lo)?'lo':''))]});
+  function qs(lo,hi){
+    if(lo>hi)return;
+    if(lo===hi){fin[lo]=true;S(`Trecho com 1 elemento: ${arr[lo]} já está no lugar certo (posição ${lo}).`,lo,hi);return}
+    const pv=arr[hi];let i=lo-1;
+    S(`Trecho ${lo}–${hi}. O pivô é o último elemento: ${pv}. Vamos separar os menores dos maiores.`,lo,hi,hi,i);
+    for(let j=lo;j<hi;j++){
+      if(arr[j]<=pv){
+        i++;
+        if(i!==j){[arr[i],arr[j]]=[arr[j],arr[i]];S(`${arr[i]} ≤ ${pv}: entra na zona dos menores (troca as posições ${i} e ${j}).`,lo,hi,hi,i,j)}
+        else S(`${arr[j]} ≤ ${pv}: já está na zona dos menores.`,lo,hi,hi,i,j);
+      }else S(`${arr[j]} > ${pv}: fica na zona dos maiores.`,lo,hi,hi,i,j);
+    }
+    i++;[arr[i],arr[hi]]=[arr[hi],arr[i]];fin[i]=true;
+    S(`O pivô ${pv} vai para a posição ${i} e já está no lugar final. À esquerda só há valores ≤ ${pv}, à direita só valores > ${pv}.`,lo,hi);
+    qs(lo,i-1);
+    if(i<k-1)qs(i+1,hi);
+    else if(i+1<=hi)S(`O pivô ficou na posição ${i}, que é ${k-1} ou mais (k − 1 = ${k-1}). O lado direito só tem valores fora das ${k} primeiras posições, então é ignorado.`,lo,hi);
+  }
+  qs(0,n-1);
+  S(`Pronto! As ${k} primeiras posições estão corretas e em ordem. O restante não foi ordenado (e nem precisava).`,0,n-1,-1,-1,-1,true);
+  return F;
+}
+
+const A={
+  sel:{fn:selecao,d:'Repete só k vezes o passo do Selection Sort: procura o menor entre os que sobraram e o coloca na próxima posição. Tempo O(n·k), sempre.'},
+  ins:{fn:insercao,d:'Mantém os k primeiros elementos ordenados. Cada elemento seguinte só entra se for menor que o maior dos k (que então sai). Tempo O(n·k) no pior caso e O(n) no melhor.'},
+  heap:{fn:heap,d:'Monta um min-heap (custo O(n)) e retira o menor k vezes (O(log n) cada). No fim, o array é invertido para deixar os k menores no início. Tempo O(n + k·log n).'},
+  quick:{fn:quick,d:'Particiona como o Quick Sort, mas só desce nos lados que ainda contêm posições entre as k primeiras. Tempo médio O(n + k·log k).'}
+};
+const MAX=99;
+let cur='sel',F=[],idx=0,timer=null;
+
+const cellH=c=>`<div class="w"><div class="c ${c.k}">${c.h!==undefined?c.h:c.t}</div>${c.i!==''?`<span class="i">${c.i}</span>`:''}</div>`;
+function draw(f){
+  $('stage').innerHTML=f.blocks.map(b=>`<h3>${b.label}</h3><div class="row">${b.cells.map(cellH).join('')}</div>`).join('');
+  $('msg').textContent=f.msg;
+  $('pos').textContent=`Passo ${idx+1} de ${F.length}`;
+  $('prev').disabled=idx===0;$('next').disabled=idx===F.length-1;
+}
+function go(n){idx=Math.max(0,Math.min(F.length-1,n));draw(F[idx])}
+function stop(){clearInterval(timer);timer=null;$('play').textContent='Reproduzir'}
+function start(){clearInterval(timer);$('play').textContent='Pausar';timer=setInterval(()=>{if(idx>=F.length-1){stop();return}go(idx+1)},1700-$('spd').value)}
+function load(){
+  stop();
+  const r=$('inp').value.split(/[\s,;]+/).filter(Boolean).map(Number);
+  if(r.length<2||r.length>12||r.some(x=>!Number.isInteger(x)||x<0||x>MAX)){$('msg').textContent=`Digite de 2 a 12 números inteiros entre 0 e ${MAX}, separados por vírgula.`;return}
+  const v=$('kk').value.trim(),k=Number(v);
+  if(v===''||!Number.isInteger(k)||k<1||k>r.length){$('msg').textContent=`O valor de k deve ser um inteiro entre 1 e ${r.length} (a quantidade de números).`;return}
+  F=A[cur].fn(r,k);go(0);
+}
+function pick(key){
+  cur=key;stop();
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===key?'true':'false'));
+  $('desc').textContent=A[key].d;
+  load();
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>pick(b.dataset.k));
+$('apply').onclick=load;
+$('inp').onkeydown=e=>{if(e.key==='Enter')load()};
+$('kk').onkeydown=e=>{if(e.key==='Enter')load()};
+$('rnd').onclick=()=>{
+  $('inp').value=Array.from({length:8},()=>Math.floor(Math.random()*(MAX+1))).join(', ');
+  $('kk').value=2+Math.floor(Math.random()*3);
+  load();
+};
+$('prev').onclick=()=>{stop();go(idx-1)};
+$('next').onclick=()=>{stop();go(idx+1)};
+$('play').onclick=()=>{if(timer){stop();return}if(idx>=F.length-1)go(0);start()};
+$('spd').oninput=()=>{if(timer)start()};
+$('inp').value='38, 27, 43, 3, 9, 82, 10';$('kk').value='3';
+pick('sel');
+</script>
+</body>
+</html>
