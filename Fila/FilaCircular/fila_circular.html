@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonstração Interativa - Fila Circular (Circular Queue)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Circular Queue Visuals */
+        .circle-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 2px dashed #334155;
+            box-sizing: border-box;
+        }
+
+        .queue-slot-wrapper {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .queue-slot {
+            width: 56px;
+            height: 56px;
+            border: 2px solid #475569;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background-color: #1e293b;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .queue-slot.active-write {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.2);
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .queue-slot.active-read {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.2);
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .queue-slot.error {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.2);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        /* Pointer Badges */
+        .pointer-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            color: white;
+            position: absolute;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .bg-front { background-color: #10b981; top: -15px; left: -10px; }
+        .bg-rear { background-color: #3b82f6; bottom: -15px; right: -10px; }
+
+        /* Code Highlighting */
+        .code-line {
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            white-space: pre;
+        }
+        .code-line.active {
+            background-color: #334155;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto w-full flex-grow flex flex-col gap-6">
+        
+        <header class="text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">
+                Fila Circular: Espaço de Segurança
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base max-w-3xl">
+                Esta visualização demonstra a Fila Circular utilizando a abordagem de <strong>Espaço de Segurança</strong>. Para distinguir uma fila vazia (<code class="text-emerald-400">front == rear</code>) de uma fila cheia (<code class="text-red-400">(rear + 1) % SIZE == front</code>), sacrificamos um espaço no array, que permanece sempre vazio. Assim, um array de tamanho N guarda, no máximo, N-1 elementos.
+            </p>
+        </header>
+
+        <div class="bg-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 border border-slate-700 shadow-lg">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <button id="btnEnqueue" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-semibold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Enqueue (Inserir)
+                </button>
+                <button id="btnDequeue" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-semibold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                    Dequeue (Remover)
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full md:w-auto bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                <label for="speedSlider" class="text-sm font-medium text-slate-300 whitespace-nowrap">Velocidade:</label>
+                <input type="range" id="speedSlider" min="100" max="1500" value="600" dir="rtl" class="w-24 md:w-32 accent-blue-500">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+            
+            <!-- Visualizador Radial -->
+            <div class="flex flex-col gap-4">
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 relative min-h-[400px] flex flex-col justify-center items-center shadow-inner overflow-hidden">
+                    
+                    <div class="absolute top-4 left-4 text-slate-400 text-sm font-mono bg-slate-900 px-3 py-1 rounded border border-slate-700 z-10">
+                        #define SIZE 8<br>
+                        Max Items: 7
+                    </div>
+
+                    <!-- Layout Circular -->
+                    <div id="queueContainer" class="circle-container mt-4">
+                        <!-- Gerado por JS (Slots) -->
+                    </div>
+                    
+                </div>
+
+                <!-- Painel de Status -->
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 text-sm shadow-lg">
+                    <h3 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Status da Execução
+                    </h3>
+                    <div id="statusText" class="min-h-[3.5rem] font-mono text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700 transition-colors">
+                        Pronto para iniciar.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Código C -->
+            <div class="bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-700 flex flex-col shadow-lg">
+                <div class="bg-slate-800/80 px-4 py-3 border-b border-slate-700 flex justify-between items-center backdrop-blur-sm">
+                    <span class="text-sm font-semibold text-slate-200">Código em C (Espaço de Segurança)</span>
+                </div>
+                <div class="p-4 overflow-auto flex-grow code-font text-sm text-slate-300 leading-relaxed" id="codeContainer">
+<div id="line-init" class="code-line text-slate-400 mb-2">// Inicialização: Front e Rear apontam para 0
+<span class="text-blue-400">int</span> front = <span class="text-purple-300">0</span>;
+<span class="text-blue-400">int</span> rear = <span class="text-purple-300">0</span>;</div>
+
+<div id="line-eq-1" class="code-line"><span class="text-blue-400">void</span> <span class="text-yellow-200">enqueue</span>(<span class="text-blue-400">int</span> value) {</div>
+<div id="line-eq-2" class="code-line">    <span class="text-pink-400">if</span> ((rear + <span class="text-purple-300">1</span>) % SIZE == front) {</div>
+<div id="line-eq-3" class="code-line">        <span class="text-yellow-200">printf</span>(<span class="text-orange-300">"Erro: Fila cheia!\n"</span>);</div>
+<div id="line-eq-4" class="code-line">        <span class="text-pink-400">return</span>;</div>
+<div id="line-eq-5" class="code-line">    }</div>
+<div id="line-eq-6" class="code-line">    queue[rear] = value;</div>
+<div id="line-eq-7" class="code-line">    rear = (rear + <span class="text-purple-300">1</span>) % SIZE;</div>
+<div id="line-eq-8" class="code-line">}</div>
+<div class="code-line"></div>
+<div id="line-dq-1" class="code-line"><span class="text-blue-400">int</span> <span class="text-yellow-200">dequeue</span>() {</div>
+<div id="line-dq-2" class="code-line">    <span class="text-pink-400">if</span> (front == rear) {</div>
+<div id="line-dq-3" class="code-line">        <span class="text-yellow-200">printf</span>(<span class="text-orange-300">"Erro: Fila vazia!\n"</span>);</div>
+<div id="line-dq-4" class="code-line">        <span class="text-pink-400">return</span> -<span class="text-purple-300">1</span>;</div>
+<div id="line-dq-5" class="code-line">    }</div>
+<div id="line-dq-6" class="code-line">    <span class="text-blue-400">int</span> value = queue[front];</div>
+<div id="line-dq-7" class="code-line">    front = (front + <span class="text-purple-300">1</span>) % SIZE;</div>
+<div id="line-dq-8" class="code-line">    <span class="text-pink-400">return</span> value;</div>
+<div id="line-dq-9" class="code-line">}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SIZE = 8;
+        let queue = new Array(SIZE).fill(null);
+        let front = 0; // Abordagem de espaço de segurança começa no 0
+        let rear = 0;
+        
+        let isAnimating = false;
+        let delay = 600;
+
+        const queueContainer = document.getElementById('queueContainer');
+        const btnEnqueue = document.getElementById('btnEnqueue');
+        const btnDequeue = document.getElementById('btnDequeue');
+        const speedSlider = document.getElementById('speedSlider');
+        const statusText = document.getElementById('statusText');
+
+        function init() {
+            renderQueue();
+            updateDelay();
+            
+            btnEnqueue.addEventListener('click', () => {
+                if(!isAnimating) {
+                    const randomVal = Math.floor(Math.random() * 90) + 10;
+                    enqueueAnim(randomVal);
+                }
+            });
+            
+            btnDequeue.addEventListener('click', () => {
+                if(!isAnimating) dequeueAnim();
+            });
+
+            speedSlider.addEventListener('input', updateDelay);
+        }
+
+        function renderQueue() {
+            queueContainer.innerHTML = '';
+            // Dimensões relativas ao container .circle-container (320x320)
+            const radius = 160; 
+            const center = 160;
+
+            for(let i = 0; i < SIZE; i++) {
+                // Cálculo de posição circular (começa no topo: -90 deg ou -PI/2)
+                const angle = (i / SIZE) * 2 * Math.PI - (Math.PI / 2);
+                const x = center + radius * Math.cos(angle);
+                const y = center + radius * Math.sin(angle);
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'queue-slot-wrapper';
+                wrapper.style.left = `${x}px`;
+                wrapper.style.top = `${y}px`;
+
+                const slot = document.createElement('div');
+                slot.id = `slot-${i}`;
+                slot.className = 'queue-slot text-slate-200';
+                slot.innerText = queue[i] !== null ? queue[i] : '';
+
+                const indexLabel = document.createElement('div');
+                indexLabel.className = 'text-slate-500 font-mono text-xs mt-1 absolute -bottom-5';
+                indexLabel.innerText = `[${i}]`;
+
+                wrapper.appendChild(slot);
+                wrapper.appendChild(indexLabel);
+
+                if(front === i) {
+                    const pFront = document.createElement('div');
+                    pFront.className = 'pointer-badge bg-front';
+                    pFront.innerText = 'Front';
+                    wrapper.appendChild(pFront);
+                }
+                
+                if(rear === i) {
+                    const pRear = document.createElement('div');
+                    pRear.className = 'pointer-badge bg-rear';
+                    pRear.innerText = 'Rear';
+                    wrapper.appendChild(pRear);
+                }
+
+                queueContainer.appendChild(wrapper);
+            }
+        }
+
+        function updateDelay() { delay = parseInt(speedSlider.value); }
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        function highlightLine(id) {
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active'));
+            const line = document.getElementById(id);
+            if (line) line.classList.add('active');
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active'));
+            document.querySelectorAll('.queue-slot').forEach(slot => {
+                slot.classList.remove('active-write', 'active-read', 'error');
+            });
+        }
+
+        function updateStatus(message, type = 'info') {
+            const baseClass = "min-h-[3.5rem] font-mono p-3 rounded-lg border transition-colors ";
+            if (type === 'error') statusText.className = baseClass + "text-red-400 bg-red-900/20 border-red-800";
+            else if (type === 'success') statusText.className = baseClass + "text-emerald-400 bg-emerald-900/20 border-emerald-800";
+            else if (type === 'highlight') statusText.className = baseClass + "text-blue-400 bg-blue-900/20 border-blue-800";
+            else statusText.className = baseClass + "text-slate-300 bg-slate-900 border-slate-700";
+            statusText.innerHTML = message;
+        }
+
+        function setUIState(animating) {
+            isAnimating = animating;
+            btnEnqueue.disabled = animating;
+            btnDequeue.disabled = animating;
+            btnEnqueue.classList.toggle('opacity-50', animating);
+            btnDequeue.classList.toggle('opacity-50', animating);
+        }
+
+        async function enqueueAnim(value) {
+            setUIState(true);
+            clearHighlights();
+            updateStatus(`A iniciar <span class="text-yellow-200">enqueue(${value})</span>...`);
+            
+            highlightLine('line-eq-1');
+            await sleep(delay);
+
+            highlightLine('line-eq-2');
+            updateStatus("A verificar se o próximo Rear colide com o Front: <code>((rear + 1) % SIZE == front)</code>.");
+            await sleep(delay);
+
+            const nextRear = (rear + 1) % SIZE;
+            
+            if (nextRear === front) {
+                highlightLine('line-eq-3');
+                updateStatus("Condição verdadeira! A fila está <strong>CHEIA</strong> (Espaço de segurança preservado).", 'error');
+                document.querySelectorAll('.queue-slot').forEach(s => {
+                    if(s.innerText !== '') s.classList.add('error');
+                });
+                await sleep(delay);
+                highlightLine('line-eq-4');
+                await sleep(delay);
+                clearHighlights();
+                setUIState(false);
+                return;
+            }
+
+            highlightLine('line-eq-6');
+            updateStatus(`A inserir o valor <strong>${value}</strong> na posição apontada pelo Rear: <code>queue[${rear}]</code>.`, 'success');
+            queue[rear] = value;
+            renderQueue();
+            
+            const targetSlot = document.getElementById(`slot-${rear}`);
+            if(targetSlot) targetSlot.classList.add('active-write');
+            await sleep(delay);
+
+            highlightLine('line-eq-7');
+            updateStatus(`Avançar Rear circularmente: <code>(${rear} + 1) % ${SIZE} = ${nextRear}</code>. O novo slot ficará como espaço livre de segurança.`);
+            rear = nextRear;
+            renderQueue();
+            
+            await sleep(delay * 1.5);
+            clearHighlights();
+            updateStatus(`Elemento ${value} inserido com sucesso.`, 'info');
+            setUIState(false);
+        }
+
+        async function dequeueAnim() {
+            setUIState(true);
+            clearHighlights();
+            updateStatus(`A iniciar <span class="text-yellow-200">dequeue()</span>...`);
+            
+            highlightLine('line-dq-1');
+            await sleep(delay);
+
+            highlightLine('line-dq-2');
+            updateStatus("A verificar se a fila está vazia: <code>(front == rear)</code>.");
+            await sleep(delay);
+
+            if (front === rear) {
+                 highlightLine('line-dq-3');
+                 updateStatus("Condição verdadeira! A fila está <strong>VAZIA</strong>.", 'error');
+                 await sleep(delay);
+                 highlightLine('line-dq-4');
+                 await sleep(delay);
+                 clearHighlights();
+                 setUIState(false);
+                 return;
+            }
+
+            highlightLine('line-dq-6');
+            const value = queue[front];
+            updateStatus(`A ler o valor <strong>${value}</strong> na posição do Front <code>queue[${front}]</code>.`);
+            
+            const readSlot = document.getElementById(`slot-${front}`);
+            if(readSlot) readSlot.classList.add('active-read');
+            await sleep(delay);
+
+            queue[front] = null;
+            renderQueue();
+            const emptySlot = document.getElementById(`slot-${front}`);
+            if(emptySlot) emptySlot.classList.add('active-read');
+
+            highlightLine('line-dq-7');
+            const nextFront = (front + 1) % SIZE;
+            updateStatus(`Avançar Front circularmente: <code>(${front} + 1) % ${SIZE} = ${nextFront}</code>.`);
+            await sleep(delay/2);
+            front = nextFront;
+            renderQueue();
+            await sleep(delay);
+
+            highlightLine('line-dq-8');
+            updateStatus(`A retornar o valor <strong>${value}</strong> que foi removido.`, 'success');
+            await sleep(delay * 1.5);
+
+            clearHighlights();
+            updateStatus(`Elemento ${value} desenfileirado com sucesso.`, 'info');
+            setUIState(false);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

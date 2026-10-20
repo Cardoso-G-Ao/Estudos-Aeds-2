@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árvore Binária de Pesquisa (BST)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Tree Visualizer */
+        #tree-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        #tree-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        line {
+            stroke: #475569;
+            stroke-width: 2;
+            transition: stroke 0.3s ease;
+        }
+
+        .node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #3b82f6;
+            border: 2px solid #60a5fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2);
+        }
+
+        /* Node States */
+        .node.comparing {
+            background-color: #f59e0b;
+            border-color: #fbbf24;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+        }
+
+        .node.found, .node.inserted {
+            background-color: #10b981;
+            border-color: #34d399;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+        }
+
+        .node.removing {
+            background-color: #ef4444;
+            border-color: #f87171;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        /* Code Highlighting */
+        .code-line {
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            white-space: pre;
+        }
+        .code-line.active {
+            background-color: #334155;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto w-full flex-grow flex flex-col gap-6">
+        
+        <header>
+            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">
+                Árvore Binária de Pesquisa (BST)
+            </h1>
+            <p class="text-slate-400 text-sm max-w-3xl">
+                Uma BST organiza dados para pesquisa rápida. O filho esquerdo é sempre menor que o pai, e o direito é maior. 
+                Profundidade máxima visual: 4 níveis.
+            </p>
+        </header>
+
+        <!-- Controls -->
+        <div class="bg-slate-800 p-4 rounded-xl flex flex-wrap items-center gap-4 border border-slate-700 shadow-lg">
+            <input type="number" id="nodeValue" placeholder="Valor (ex: 42)" class="px-3 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white outline-none focus:border-blue-500 w-32">
+            
+            <button id="btnInsert" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-semibold text-sm">Inserir</button>
+            <button id="btnSearch" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-semibold text-sm">Pesquisar</button>
+            <button id="btnRemove" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors font-semibold text-sm">Remover</button>
+            
+            <div class="flex-grow"></div>
+            
+            <div class="flex items-center gap-3 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                <label for="speedSlider" class="text-sm font-medium text-slate-300">Velocidade:</label>
+                <input type="range" id="speedSlider" min="100" max="1500" value="600" dir="rtl" class="w-24 accent-blue-500">
+            </div>
+            
+            <button id="btnClear" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-semibold text-sm">Limpar Árvore</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+            
+            <!-- Left Side: Visualizer -->
+            <div class="flex flex-col gap-4">
+                <div id="tree-container" class="border border-slate-700 shadow-inner">
+                    <svg id="tree-svg"></svg>
+                    <!-- Nodes injected via JS -->
+                </div>
+
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-lg">
+                    <h3 class="text-white font-semibold mb-2 text-sm">Status da Execução</h3>
+                    <div id="statusText" class="min-h-[3rem] font-mono text-sm text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700 transition-colors">
+                        Aguardando operação...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: C Code with Tabs -->
+            <div class="bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-700 flex flex-col shadow-lg">
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-700 bg-slate-800/80 backdrop-blur-sm">
+                    <button class="tab-btn flex-1 py-3 text-sm font-medium text-blue-400 border-b-2 border-blue-500" data-target="code-insert">Inserir</button>
+                    <button class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200" data-target="code-search">Pesquisar</button>
+                    <button class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-slate-200" data-target="code-remove">Remover</button>
+                </div>
+                
+                <div class="p-4 overflow-auto flex-grow code-font text-sm text-slate-300 leading-relaxed relative">
+                    
+                    <!-- INSERT CODE -->
+                    <div id="code-insert" class="code-panel">
+<div class="code-line text-slate-400">typedef struct Node {
+    int data;
+    struct Node *left, *right;
+} Node;</div>
+<br>
+<div id="ins-1" class="code-line"><span class="text-blue-400">Node*</span> <span class="text-yellow-200">insert</span>(<span class="text-blue-400">Node*</span> root, <span class="text-blue-400">int</span> val) {</div>
+<div id="ins-2" class="code-line">    <span class="text-pink-400">if</span> (root == <span class="text-purple-300">NULL</span>)</div>
+<div id="ins-3" class="code-line">        <span class="text-pink-400">return</span> createNode(val);</div>
+<div id="ins-4" class="code-line">    <span class="text-pink-400">if</span> (val &lt; root-&gt;data)</div>
+<div id="ins-5" class="code-line">        root-&gt;left = insert(root-&gt;left, val);</div>
+<div id="ins-6" class="code-line">    <span class="text-pink-400">else if</span> (val &gt; root-&gt;data)</div>
+<div id="ins-7" class="code-line">        root-&gt;right = insert(root-&gt;right, val);</div>
+<div id="ins-8" class="code-line">    <span class="text-pink-400">return</span> root;</div>
+<div id="ins-9" class="code-line">}</div>
+                    </div>
+
+                    <!-- SEARCH CODE -->
+                    <div id="code-search" class="code-panel hidden">
+<div id="src-1" class="code-line"><span class="text-blue-400">Node*</span> <span class="text-yellow-200">search</span>(<span class="text-blue-400">Node*</span> root, <span class="text-blue-400">int</span> val) {</div>
+<div id="src-2" class="code-line">    <span class="text-pink-400">if</span> (root == <span class="text-purple-300">NULL</span> || root-&gt;data == val)</div>
+<div id="src-3" class="code-line">        <span class="text-pink-400">return</span> root;</div>
+<div id="src-4" class="code-line">    <span class="text-pink-400">if</span> (val &lt; root-&gt;data)</div>
+<div id="src-5" class="code-line">        <span class="text-pink-400">return</span> search(root-&gt;left, val);</div>
+<div id="src-6" class="code-line">    <span class="text-pink-400">return</span> search(root-&gt;right, val);</div>
+<div id="src-7" class="code-line">}</div>
+                    </div>
+
+                    <!-- REMOVE CODE -->
+                    <div id="code-remove" class="code-panel hidden">
+<div id="rem-1" class="code-line"><span class="text-blue-400">Node*</span> <span class="text-yellow-200">removeNode</span>(<span class="text-blue-400">Node*</span> root, <span class="text-blue-400">int</span> val) {</div>
+<div id="rem-2" class="code-line">    <span class="text-pink-400">if</span> (root == <span class="text-purple-300">NULL</span>) <span class="text-pink-400">return</span> root;</div>
+<div id="rem-3" class="code-line">    <span class="text-pink-400">if</span> (val &lt; root-&gt;data)</div>
+<div id="rem-4" class="code-line">        root-&gt;left = removeNode(root-&gt;left, val);</div>
+<div id="rem-5" class="code-line">    <span class="text-pink-400">else if</span> (val &gt; root-&gt;data)</div>
+<div id="rem-6" class="code-line">        root-&gt;right = removeNode(root-&gt;right, val);</div>
+<div id="rem-7" class="code-line">    <span class="text-pink-400">else</span> { <span class="text-slate-400">// Nó encontrado</span></div>
+<div id="rem-8" class="code-line">        <span class="text-pink-400">if</span> (root-&gt;left == <span class="text-purple-300">NULL</span>) <span class="text-pink-400">return</span> root-&gt;right;</div>
+<div id="rem-9" class="code-line">        <span class="text-pink-400">else if</span> (root-&gt;right == <span class="text-purple-300">NULL</span>) <span class="text-pink-400">return</span> root-&gt;left;</div>
+<div id="rem-10" class="code-line">        <span class="text-blue-400">Node*</span> temp = minValueNode(root-&gt;right);</div>
+<div id="rem-11" class="code-line">        root-&gt;data = temp-&gt;data;</div>
+<div id="rem-12" class="code-line">        root-&gt;right = removeNode(root-&gt;right, temp-&gt;data);</div>
+<div id="rem-13" class="code-line">    }</div>
+<div id="rem-14" class="code-line">    <span class="text-pink-400">return</span> root;</div>
+<div id="rem-15" class="code-line">}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const treeContainer = document.getElementById('tree-container');
+        const treeSvg = document.getElementById('tree-svg');
+        const statusText = document.getElementById('statusText');
+        const inputVal = document.getElementById('nodeValue');
+        const speedSlider = document.getElementById('speedSlider');
+        
+        let delay = 600;
+        let isAnimating = false;
+        let root = null;
+        const MAX_DEPTH = 4;
+
+        // Tree Node Class
+        class TreeNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+                this.id = 'node-' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+
+        // Tabs Logic
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if(isAnimating) return; // Block changing tabs during animation
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('text-blue-400', 'border-blue-500');
+                    b.classList.add('text-slate-400', 'border-transparent');
+                });
+                e.target.classList.add('text-blue-400', 'border-blue-500');
+                e.target.classList.remove('text-slate-400', 'border-transparent');
+                
+                document.querySelectorAll('.code-panel').forEach(p => p.classList.add('hidden'));
+                document.getElementById(e.target.dataset.target).classList.remove('hidden');
+            });
+        });
+
+        function switchTab(targetId) {
+            document.querySelector(`[data-target="${targetId}"]`).click();
+        }
+
+        // Helpers
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+        const updateDelay = () => delay = parseInt(speedSlider.value);
+        speedSlider.addEventListener('input', updateDelay);
+
+        function setStatus(msg, type='info') {
+            const base = "min-h-[3rem] font-mono text-sm p-3 rounded-lg border transition-colors ";
+            if(type === 'error') statusText.className = base + "text-red-400 bg-red-900/20 border-red-800";
+            else if(type === 'success') statusText.className = base + "text-emerald-400 bg-emerald-900/20 border-emerald-800";
+            else if(type === 'highlight') statusText.className = base + "text-amber-400 bg-amber-900/20 border-amber-800";
+            else statusText.className = base + "text-slate-300 bg-slate-900 border-slate-700";
+            statusText.innerHTML = msg;
+        }
+
+        function highlightLine(id) {
+            document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+            if(id) {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.add('active');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function clearNodeStyles() {
+            document.querySelectorAll('.node').forEach(n => {
+                n.className = 'node'; // reset to base
+            });
+        }
+
+        function setUIState(animating) {
+            isAnimating = animating;
+            ['btnInsert', 'btnSearch', 'btnRemove', 'btnClear'].forEach(id => {
+                document.getElementById(id).disabled = animating;
+                document.getElementById(id).classList.toggle('opacity-50', animating);
+            });
+        }
+
+        function getInputValue() {
+            const val = parseInt(inputVal.value);
+            if(isNaN(val)) {
+                setStatus("Por favor, insira um número válido.", 'error');
+                return null;
+            }
+            return val;
+        }
+
+        // Tree Drawing
+        function calculatePositions(node, left, right, top, depth) {
+            if (!node) return;
+            node.x = (left + right) / 2;
+            node.y = top;
+            
+            const yOffset = 60;
+            if (node.left) calculatePositions(node.left, left, node.x, top + yOffset, depth + 1);
+            if (node.right) calculatePositions(node.right, node.x, right, top + yOffset, depth + 1);
+        }
+
+        function drawTree() {
+            treeSvg.innerHTML = '';
+            document.querySelectorAll('.node').forEach(n => n.remove());
+            
+            if(!root) return;
+            
+            const w = treeContainer.clientWidth;
+            calculatePositions(root, 0, w, 40, 0);
+            drawNode(root);
+        }
+
+        function drawNode(node) {
+            if(!node) return;
+
+            // Draw children lines first
+            if(node.left) {
+                drawLine(node.x, node.y, node.left.x, node.left.y);
+                drawNode(node.left);
+            }
+            if(node.right) {
+                drawLine(node.x, node.y, node.right.x, node.right.y);
+                drawNode(node.right);
+            }
+
+            // Draw Node HTML Div
+            const div = document.createElement('div');
+            div.id = node.id;
+            div.className = 'node';
+            div.style.left = `${node.x}px`;
+            div.style.top = `${node.y}px`;
+            div.innerText = node.val;
+            treeContainer.appendChild(div);
+        }
+
+        function drawLine(x1, y1, x2, y2) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            treeSvg.appendChild(line);
+        }
+
+        function getDepth(node) {
+            if(!node) return 0;
+            return 1 + Math.max(getDepth(node.left), getDepth(node.right));
+        }
+
+        // --- Operations --- //
+
+        // INSERT
+        async function insertAnim() {
+            const val = getInputValue();
+            if(val === null) return;
+            if(getDepth(root) >= MAX_DEPTH && !root) return; // Simplified depth check
+
+            setUIState(true);
+            switchTab('code-insert');
+            clearNodeStyles();
+            inputVal.value = '';
+
+            highlightLine('ins-1');
+            setStatus(`A iniciar inserção de <b>${val}</b>.`);
+            await sleep(delay);
+
+            root = await _insertRecursive(root, val, 1);
+            
+            drawTree();
+            const insertedNode = findNode(root, val);
+            if(insertedNode) {
+                const el = document.getElementById(insertedNode.id);
+                if(el) el.classList.add('inserted');
+            }
+            
+            highlightLine('ins-8');
+            setStatus(`Nó <b>${val}</b> inserido.`, 'success');
+            await sleep(delay);
+            
+            clearNodeStyles();
+            highlightLine('');
+            setUIState(false);
+        }
+
+        async function _insertRecursive(node, val, depth) {
+            highlightLine('ins-2');
+            await sleep(delay/2);
+            if (!node) {
+                highlightLine('ins-3');
+                setStatus(`Encontrada posição vazia. A criar nó <b>${val}</b>.`);
+                await sleep(delay);
+                return new TreeNode(val);
+            }
+
+            const el = document.getElementById(node.id);
+            if(el) el.classList.add('comparing');
+            
+            highlightLine('ins-4');
+            setStatus(`A comparar <b>${val}</b> com <b>${node.val}</b>...`);
+            await sleep(delay);
+
+            if (val < node.val) {
+                setStatus(`<b>${val}</b> < <b>${node.val}</b>, ir para a Esquerda.`);
+                highlightLine('ins-5');
+                await sleep(delay);
+                if(el) el.classList.remove('comparing');
+                
+                if (depth >= MAX_DEPTH && !node.left) {
+                    setStatus(`Limite de profundidade alcançado!`, 'error');
+                    await sleep(delay);
+                    return node;
+                }
+                node.left = await _insertRecursive(node.left, val, depth + 1);
+            } else if (val > node.val) {
+                setStatus(`<b>${val}</b> > <b>${node.val}</b>, ir para a Direita.`);
+                highlightLine('ins-6');
+                await sleep(delay/2);
+                highlightLine('ins-7');
+                await sleep(delay);
+                if(el) el.classList.remove('comparing');
+
+                if (depth >= MAX_DEPTH && !node.right) {
+                    setStatus(`Limite de profundidade alcançado!`, 'error');
+                    await sleep(delay);
+                    return node;
+                }
+                node.right = await _insertRecursive(node.right, val, depth + 1);
+            } else {
+                setStatus(`O valor <b>${val}</b> já existe na árvore.`, 'error');
+                if(el) el.classList.remove('comparing');
+                await sleep(delay);
+            }
+            return node;
+        }
+
+        // SEARCH
+        async function searchAnim() {
+            const val = getInputValue();
+            if(val === null) return;
+
+            setUIState(true);
+            switchTab('code-search');
+            clearNodeStyles();
+
+            highlightLine('src-1');
+            setStatus(`A pesquisar pelo valor <b>${val}</b>.`);
+            await sleep(delay);
+
+            let curr = root;
+            let found = false;
+
+            while (curr != null) {
+                highlightLine('src-2');
+                const el = document.getElementById(curr.id);
+                if(el) el.classList.add('comparing');
+                
+                setStatus(`Nó atual: <b>${curr.val}</b>. A comparar com <b>${val}</b>...`);
+                await sleep(delay);
+
+                if (curr.val === val) {
+                    highlightLine('src-3');
+                    if(el) {
+                        el.classList.remove('comparing');
+                        el.classList.add('found');
+                    }
+                    setStatus(`Valor <b>${val}</b> encontrado!`, 'success');
+                    found = true;
+                    await sleep(delay);
+                    break;
+                }
+
+                highlightLine('src-4');
+                await sleep(delay/2);
+                if (val < curr.val) {
+                    setStatus(`<b>${val}</b> < <b>${curr.val}</b>. Ir para a Esquerda.`);
+                    highlightLine('src-5');
+                    if(el) el.classList.remove('comparing');
+                    curr = curr.left;
+                } else {
+                    setStatus(`<b>${val}</b> > <b>${curr.val}</b>. Ir para a Direita.`);
+                    highlightLine('src-6');
+                    if(el) el.classList.remove('comparing');
+                    curr = curr.right;
+                }
+                await sleep(delay);
+            }
+
+            if (!found) {
+                highlightLine('src-2');
+                await sleep(delay/2);
+                highlightLine('src-3');
+                setStatus(`Valor <b>${val}</b> não encontrado na árvore (NULL).`, 'error');
+                await sleep(delay);
+            }
+
+            highlightLine('');
+            setUIState(false);
+        }
+
+        function findNode(node, val) {
+            if(!node) return null;
+            if(node.val === val) return node;
+            if(val < node.val) return findNode(node.left, val);
+            return findNode(node.right, val);
+        }
+
+        // REMOVE
+        async function removeAnim() {
+            const val = getInputValue();
+            if(val === null) return;
+
+            setUIState(true);
+            switchTab('code-remove');
+            clearNodeStyles();
+
+            highlightLine('rem-1');
+            setStatus(`A iniciar remoção de <b>${val}</b>.`);
+            await sleep(delay);
+
+            root = await _removeRecursive(root, val);
+            
+            drawTree();
+            setStatus(`Remoção concluída.`, 'info');
+            highlightLine('');
+            setUIState(false);
+        }
+
+        async function _removeRecursive(node, val) {
+            highlightLine('rem-2');
+            await sleep(delay/2);
+            if (!node) return null;
+
+            const el = document.getElementById(node.id);
+            if(el) el.classList.add('comparing');
+
+            highlightLine('rem-3');
+            await sleep(delay/2);
+            if (val < node.val) {
+                setStatus(`<b>${val}</b> < <b>${node.val}</b>, descer à Esquerda.`);
+                highlightLine('rem-4');
+                await sleep(delay);
+                if(el) el.classList.remove('comparing');
+                node.left = await _removeRecursive(node.left, val);
+            } 
+            else {
+                highlightLine('rem-5');
+                await sleep(delay/2);
+                if (val > node.val) {
+                    setStatus(`<b>${val}</b> > <b>${node.val}</b>, descer à Direita.`);
+                    highlightLine('rem-6');
+                    await sleep(delay);
+                    if(el) el.classList.remove('comparing');
+                    node.right = await _removeRecursive(node.right, val);
+                } 
+                else {
+                    // Encontrado
+                    highlightLine('rem-7');
+                    if(el) {
+                        el.classList.remove('comparing');
+                        el.classList.add('removing');
+                    }
+                    setStatus(`Nó <b>${val}</b> encontrado! Preparando para remover...`, 'highlight');
+                    await sleep(delay * 1.5);
+
+                    // Caso 1 ou 2: um filho ou nenhum
+                    highlightLine('rem-8');
+                    await sleep(delay/2);
+                    if (!node.left) {
+                        setStatus(`Nenhum filho à esquerda. Substituindo pelo filho à direita.`);
+                        await sleep(delay);
+                        return node.right;
+                    } 
+                    
+                    highlightLine('rem-9');
+                    await sleep(delay/2);
+                    if (!node.right) {
+                        setStatus(`Nenhum filho à direita. Substituindo pelo filho à esquerda.`);
+                        await sleep(delay);
+                        return node.left;
+                    }
+
+                    // Caso 3: Dois filhos
+                    highlightLine('rem-10');
+                    setStatus(`Dois filhos encontrados. A procurar o sucessor in-order (menor valor na subárvore direita)...`);
+                    await sleep(delay);
+                    
+                    let temp = node.right;
+                    while (temp.left) temp = temp.left;
+                    
+                    highlightLine('rem-11');
+                    setStatus(`Sucessor encontrado: <b>${temp.val}</b>. Copiando valor para o nó atual.`);
+                    node.val = temp.val;
+                    drawTree(); // redraw to show updated value
+                    const newEl = document.getElementById(node.id);
+                    if(newEl) newEl.classList.add('comparing');
+                    await sleep(delay);
+
+                    highlightLine('rem-12');
+                    setStatus(`A remover o nó sucessor recursivamente...`);
+                    await sleep(delay);
+                    node.right = await _removeRecursive(node.right, temp.val);
+                }
+            }
+            
+            highlightLine('rem-14');
+            return node;
+        }
+
+        // Event Listeners
+        document.getElementById('btnInsert').addEventListener('click', insertAnim);
+        document.getElementById('btnSearch').addEventListener('click', searchAnim);
+        document.getElementById('btnRemove').addEventListener('click', removeAnim);
+        document.getElementById('btnClear').addEventListener('click', () => {
+            if(isAnimating) return;
+            root = null;
+            drawTree();
+            setStatus("Árvore limpa.");
+            clearNodeStyles();
+        });
+
+        // Initialize empty Tree container and handle resize
+        window.addEventListener('resize', () => { if(!isAnimating) drawTree(); });
+        
+        // Dummy init
+        setTimeout(() => {
+            inputVal.value = '50';
+            insertAnim().then(() => {
+                inputVal.value = '30';
+                return insertAnim();
+            }).then(() => {
+                inputVal.value = '70';
+                return insertAnim();
+            });
+        }, 500);
+
+    </script>
+</body>
+</html>
