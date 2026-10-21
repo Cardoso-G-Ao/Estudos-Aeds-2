@@ -1,6 +1,6 @@
 # 📚 Estudos de AEDS 2
 
-Repositório de estudos da disciplina **Algoritmos e Estruturas de Dados 2**. Aqui estão reunidos, em um só lugar, os **códigos em C**, os **guias de estudo** e as **demonstrações interativas** dos principais algoritmos de ordenação, dos algoritmos de pesquisa, dos fundamentos de complexidade e das estruturas de dados vistas na disciplina (listas, filas, pilhas e células).
+Repositório de estudos da disciplina **Algoritmos e Estruturas de Dados 2**. Aqui estão reunidos, em um só lugar, os **códigos em C**, os **guias de estudo** e as **demonstrações interativas** dos principais algoritmos de ordenação, dos algoritmos de pesquisa, dos fundamentos de complexidade e das estruturas de dados vistas na disciplina (células, listas, filas, pilhas, matriz flexível e árvore binária de pesquisa).
 
 Este repositório foi feito por **Gabriel Cardoso Alvares de Oliveira**. Para **praticar** o que está aqui, existe um repositório só de exercícios, o [**Exercicios-Estudos-Aeds-2-**](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), com listas de exercícios e soluções em C.
 
@@ -12,7 +12,7 @@ A ideia do projeto é simples: para cada assunto, você tem três formas de apre
 | 🎮 **Demonstração** (`.html`) | Página interativa que executa o algoritmo passo a passo | Ver o algoritmo acontecendo |
 | 💻 **Código** (`.c`) | Implementação em C, pronta para compilar | Praticar e testar |
 
-> 📌 Só o assunto **Complexidade** não tem demonstração interativa: ele tem guia e código.
+> 📌 Nem todo assunto tem os três formatos. **Complexidade** tem guia e código; **listas, filas encadeadas, pilha e células** têm só código (a **fila circular** tem também guia e demonstração); e as plataformas interativas da pasta `Estudos/` reúnem animações de várias dessas estruturas.
 
 ---
 
@@ -24,14 +24,16 @@ A ideia do projeto é simples: para cada assunto, você tem três formas de apre
 4. [Algoritmos de ordenação](#-algoritmos-de-ordenação)
 5. [Algoritmos de pesquisa](#-algoritmos-de-pesquisa)
 6. [Estruturas de dados](#-estruturas-de-dados)
-7. [Pasta Estudos](#-pasta-estudos)
-8. [Como usar as demonstrações](#-como-usar-as-demonstrações)
-9. [Como compilar e executar os códigos em C](#-como-compilar-e-executar-os-códigos-em-c)
-10. [Como funciona o index.html](#-como-funciona-o-indexhtml)
-11. [Publicar no GitHub Pages](#-publicar-no-github-pages-opcional)
-12. [Sugestão de roteiro de estudo](#-sugestão-de-roteiro-de-estudo)
-13. [Repositório de exercícios](#-repositório-de-exercícios)
-14. [Autor](#-autor)
+7. [Matriz flexível](#-matriz-flexível)
+8. [Árvore binária de pesquisa](#-árvore-binária-de-pesquisa)
+9. [Pasta Estudos](#-pasta-estudos)
+10. [Como usar as demonstrações](#-como-usar-as-demonstrações)
+11. [Como compilar e executar os códigos em C](#-como-compilar-e-executar-os-códigos-em-c)
+12. [Como funciona o index.html](#-como-funciona-o-indexhtml)
+13. [Publicar no GitHub Pages](#-publicar-no-github-pages-opcional)
+14. [Sugestão de roteiro de estudo](#-sugestão-de-roteiro-de-estudo)
+15. [Repositório de exercícios](#-repositório-de-exercícios)
+16. [Autor](#-autor)
 
 ---
 
@@ -103,6 +105,17 @@ Estudos-Aeds-2/
 │   ├── Celula.c
 │   ├── CelulaDupla.c
 │   └── Celulacabeca.c
+│
+├── MatrizFlexivel/            # matriz feita de células com 4 ponteiros (lista ortogonal)
+│   ├── guia_completo_matriz_flex_vel.md
+│   ├── demonstra_o_interativa_matriz_flex_vel.html
+│   └── MatrizFlexivel.c
+│
+├── Arvore/                    # árvores
+│   └── ArvoreBinariadePesquisa/   # árvore binária de pesquisa (BST)
+│       ├── guia_completo_rvore_bin_ria_de_pesquisa.md
+│       ├── arvore_bin_ria_de_pesquisa.html
+│       └── Arvore.c
 │
 └── Estudos/                   # materiais extras e plataformas interativas
     ├── FIlaCircularEstudos/   # estudo sobre fila circular
@@ -211,7 +224,7 @@ A pasta `Pesquisa/` reúne os dois algoritmos clássicos de busca de um valor em
 
 ## 🧱 Estruturas de dados
 
-As pastas `LIsta/`, `Fila/`, `Pilha/` e `CelulaEstrutura/` reúnem códigos em C que mostram, uma operação por arquivo, como cada estrutura é construída.
+As pastas `LIsta/`, `Fila/`, `Pilha/` e `CelulaEstrutura/` reúnem códigos em C que mostram, uma operação por arquivo, como cada estrutura é construída. A **matriz flexível** e a **árvore binária de pesquisa**, que também são feitas de células com ponteiros, têm seções próprias logo abaixo, cada uma com guia, demonstração e código.
 
 ### Conceito central: a célula
 
@@ -287,6 +300,71 @@ void empilhar(Celula **topo) {
 
 ---
 
+## 🔲 Matriz flexível
+
+A pasta `MatrizFlexivel/` leva a ideia da célula para **duas dimensões**. Em vez de um bloco contínuo de memória (`int m[3][3]`), cada elemento é uma célula alocada separadamente e ligada às quatro vizinhas. Essa estrutura também aparece com os nomes de matriz dinamicamente encadeada e **lista ortogonal**.
+
+```c
+typedef struct Celula {
+    int elemento;
+    struct Celula *esq, *dir, *sup, *inf;   // vizinhas: esquerda, direita, cima e baixo
+} Celula;
+```
+
+Um ponteiro `inicio` guarda a célula `[0][0]`. Para chegar à posição `(i, j)`, o código anda `i` vezes por `inf` e `j` vezes por `dir`.
+
+| Arquivo | O que tem |
+|---|---|
+| `guia_completo_matriz_flex_vel.md` | Guia com a analogia da malha urbana (cada cruzamento liga norte, sul, leste e oeste), a estrutura da célula, complexidade, vantagens, desvantagens e quando usar |
+| `demonstra_o_interativa_matriz_flex_vel.html` | Demonstração animada com os botões **+ Adicionar Linha**, **+ Adicionar Coluna**, **Aleatorizar Valores** e **Reset**. Tem controle de velocidade, abas com o código de `adicionarLinha()` e `adicionarColuna()` e mensagens que descrevem cada ponteiro sendo ligado |
+| `MatrizFlexivel.c` | Código em C com `novaCelula`, `criarMatriz(linhas, colunas)`, `inserir(inicio, linha, coluna, elemento)` e `imprimir`. O `main` lê as dimensões e depois os valores |
+
+| Operação | Custo | Por quê |
+|---|---|---|
+| Acessar a posição `(i, j)` | O(N + M) | Não há cálculo de endereço como no array: é preciso caminhar pelas células |
+| Adicionar linha ou coluna | O(M) ou O(N) | Percorre a última linha (ou coluna) ligando os ponteiros um a um |
+| Memória | O(N × M) | Mas com 4 ponteiros extras por elemento |
+
+(*N* = número de linhas, *M* = número de colunas.)
+
+**Vantagem:** cresce em tempo de execução, e inserir no meio só exige religar ponteiros. **Desvantagem:** gasta muito mais memória que um array 2D e o acesso é mais lento. Na prática, a ideia serve de base para **matrizes esparsas**.
+
+---
+
+## 🌳 Árvore binária de pesquisa
+
+A pasta `Arvore/ArvoreBinariadePesquisa/` apresenta a **árvore binária de pesquisa** (*Binary Search Tree*, BST): uma estrutura hierárquica em que cada nó tem no máximo dois filhos. Diferente das listas, ela não é linear, e isso permite buscar, inserir e remover sem varrer todos os elementos.
+
+A regra que define a BST: para qualquer nó, os valores da **subárvore esquerda são menores** e os da **subárvore direita são maiores**.
+
+```c
+typedef struct Arvore {
+    int elemento;
+    struct Arvore *esq, *dir;   // filho esquerdo (menores) e direito (maiores)
+} Arvore;
+```
+
+| Arquivo | O que tem |
+|---|---|
+| `guia_completo_rvore_bin_ria_de_pesquisa.md` | Guia com a analogia do jogo de adivinhação, complexidade de tempo e de espaço, vantagens, desvantagens, um exemplo clássico em C (inserir e buscar) e quando usar |
+| `arvore_bin_ria_de_pesquisa.html` | Demonstração animada: digite um valor e use **Inserir**, **Pesquisar** ou **Remover**; **Limpar Árvore** recomeça. Tem controle de velocidade, abas com o código de cada operação e a caixa **Status da Execução**, que narra cada comparação. A remoção mostra o caso do nó com dois filhos, trocado pelo sucessor |
+| `Arvore.c` | Código em C com `novoNo`, `inserir` (recursiva, valores repetidos são ignorados) e `imprimir` (em ordem). O `main` lê números até o fim da entrada, monta a árvore e imprime os valores já ordenados |
+
+| Característica | Valor |
+|---|---|
+| Buscar, inserir e remover (árvore balanceada) | O(log n) |
+| Buscar, inserir e remover (pior caso) | O(n): acontece quando os valores entram já ordenados e a árvore vira uma "linha reta" |
+| Memória | O(n): cada nó guarda o dado e dois ponteiros |
+| Percurso **em ordem** (esquerda, nó, direita) | Visita os valores do menor para o maior, sem precisar de um algoritmo de ordenação |
+
+**Ligações com o resto do repositório:**
+
+- é a mesma lógica da **pesquisa binária**, só que com os dados em nós ligados por ponteiros, o que torna inserir e remover baratos (no array ordenado seria preciso deslocar elementos);
+- usa **recursão** e **alocação dinâmica**, como o Merge Sort e as listas encadeadas;
+- o **Heap Sort** também usa uma árvore binária, mas guardada em um array.
+
+---
+
 ## 🔬 Pasta Estudos
 
 A pasta `Estudos/` guarda materiais extras:
@@ -317,6 +395,12 @@ As demonstrações de **Counting, Radix, Bucket, Quick, Heap e Bubble Sort**, da
 - **Sublinhado:** as k primeiras posições, onde ficam os k menores (ordenação parcial);
 - **Esmaecido:** fora do trecho atual (Quick), já verificado (Pesquisa Sequencial) ou metade já descartada (Pesquisa Binária).
 
+**Demonstrações de estruturas de dados (Árvore e Matriz Flexível):** funcionam com botões em vez de uma lista de números.
+
+- **Árvore binária de pesquisa:** digite um valor no campo e clique em **Inserir**, **Pesquisar** ou **Remover**. A barra **Velocidade** controla a animação e **Limpar Árvore** esvazia tudo. A área de desenho mostra até 4 níveis.
+- **Matriz flexível:** use **+ Adicionar Linha** e **+ Adicionar Coluna** para ver os ponteiros sendo ligados, **Aleatorizar Valores** para preencher as células e **Reset** para recomeçar.
+- Nas duas, a caixa de **Status** explica cada passo, e as abas de código mostram a função correspondente em C.
+
 > As demonstrações são arquivos HTML independentes. Basta dar dois cliques no arquivo para abrir no navegador. Algumas usam fontes e bibliotecas da internet, então precisam de conexão.
 
 ---
@@ -343,10 +427,20 @@ A flag `-Wall` ativa os avisos do compilador, o que ajuda a achar erros cedo.
 
 ### Observações importantes
 
-- **Arquivos com `main`:** a maioria dos códigos de listas, filas, pilhas, células, de ordenação (como o `Bubblesort.c`), de pesquisa (`PesquisaSequencial.c` e `PesquisaBinaria.c`) e o `complexidade.c` já vêm com `main` e rodam direto.
+- **Arquivos com `main`:** a maioria dos códigos de listas, filas, pilhas, células, de ordenação (como o `Bubblesort.c`), de pesquisa (`PesquisaSequencial.c` e `PesquisaBinaria.c`), o `Arvore.c`, o `MatrizFlexivel.c` e o `complexidade.c` já vêm com `main` e rodam direto.
 - **Arquivos só com a função:** alguns códigos de ordenação (como `insercao.c`, `selecao.c` e `countingsort.c`) trazem apenas a função do algoritmo. Para testá-los, escreva um `main` que crie um array e chame a função, ou copie a função para um arquivo seu.
 - **Entrada de dados:** vários códigos de listas e filas leem números com `scanf`. Digite os valores e termine a entrada com **Ctrl + D** (Linux e macOS) ou **Ctrl + Z** e Enter (Windows).
 - **Formato da entrada na fila encadeada e na pilha:** digite os números da primeira linha separados por espaço e **termine a sequência com uma letra** (por exemplo, `10 20 30 x`). Nos arquivos que inserem um valor, digite-o na linha seguinte (por exemplo, `40`).
+- **Árvore e matriz flexível:** o `Arvore.c` lê números até o fim da entrada e imprime a árvore em ordem; o `MatrizFlexivel.c` lê primeiro as dimensões (`linhas colunas`) e depois os valores. Dá para testar sem digitar, usando um pipe:
+
+  ```bash
+  gcc -Wall -o arvore Arvore/ArvoreBinariadePesquisa/Arvore.c
+  echo "50 30 70 20 40 60 80" | ./arvore        # imprime: 20 30 40 50 60 70 80
+
+  gcc -Wall -o matriz MatrizFlexivel/MatrizFlexivel.c
+  printf "2 3\n1 2 3\n4 5 6\n" | ./matriz        # imprime a matriz 2x3
+  ```
+
 - **Um programa por arquivo:** cada `.c` tem o seu próprio `main`, então compile um arquivo de cada vez.
 
 ---
@@ -405,8 +499,10 @@ Uma ordem que vai do mais simples ao mais avançado:
 5. **Counting, Radix e Bucket Sort:** como ordenar sem comparar elementos.
 6. **Pesquisa sequencial e binária:** como achar um valor, e por que ter os dados ordenados faz diferença.
 7. **Células, listas, filas e pilhas:** ponteiros, alocação dinâmica e estruturas encadeadas.
-8. **Fila circular e materiais da pasta Estudos:** aprofundamento.
-9. **Exercícios:** pratique no [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), que segue a mesma ordem de assuntos deste.
+8. **Matriz flexível:** a célula ganha quatro ponteiros e a estrutura passa a ter duas dimensões.
+9. **Árvore binária de pesquisa:** une recursão, ponteiros e a lógica da pesquisa binária.
+10. **Fila circular e materiais da pasta Estudos:** aprofundamento.
+11. **Exercícios:** pratique no [repositório de exercícios](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-), que segue a mesma ordem de assuntos deste.
 
 **Dica de estudo para cada algoritmo:**
 
@@ -444,6 +540,8 @@ Fluxo sugerido:
 - **2 algoritmos de pesquisa** (sequencial e binária), também com guia, demonstração interativa e código em C.
 - **Guia de complexidade** de algoritmos, com um código em C que conta operações.
 - **Listas, filas, pilhas e células** em C, com uma operação por arquivo.
+- **Matriz flexível** (lista ortogonal), com guia, demonstração interativa e código em C.
+- **Árvore binária de pesquisa**, com guia, demonstração interativa (inserir, pesquisar e remover) e código em C.
 - **Materiais extras** na pasta `Estudos/`.
 - **Repositório de exercícios** complementar: [Exercicios-Estudos-Aeds-2-](https://github.com/Cardoso-G-Ao/Exercicios-Estudos-Aeds-2-).
 - **`index.html`** para navegar por tudo, gerado por `gerar_index.py`.
