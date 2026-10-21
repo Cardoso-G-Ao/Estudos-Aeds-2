@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz Flexível - Demonstração Interativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .code-font { font-family: 'JetBrains Mono', monospace; }
+
+        /* Matriz Area */
+        #matrix-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: auto;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            padding: 20px;
+        }
+
+        #matrix-surface {
+            position: relative;
+            min-width: 100%;
+            min-height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Node */
+        .m-node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #3b82f6;
+            border: 2px solid #60a5fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .m-node.highlight {
+            background-color: #f59e0b;
+            border-color: #fbbf24;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            z-index: 20;
+        }
+
+        /* Links (Pointers) */
+        .h-link, .v-link {
+            position: absolute;
+            background-color: #475569;
+            z-index: 5;
+            transition: background-color 0.3s, width 0.3s, height 0.3s;
+        }
+        
+        .h-link { height: 4px; transform: translateY(-50%); }
+        .v-link { width: 4px; transform: translateX(-50%); }
+
+        .link-active { background-color: #10b981; box-shadow: 0 0 8px #10b981; z-index: 15; }
+
+        /* Code highlight */
+        .code-line { padding: 2px 8px; border-radius: 4px; transition: background-color 0.2s; white-space: pre; }
+        .code-line.active { background-color: #334155; border-left: 4px solid #3b82f6; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px;}
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto w-full flex-grow flex flex-col gap-6">
+        
+        <header>
+            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 mb-2">
+                Matriz Flexível (Lista Ortogonal 2D)
+            </h1>
+            <p class="text-slate-400 text-sm max-w-3xl">
+                Células alocadas individualmente na memória, conectadas por ponteiros duplos horizontais e verticais.
+            </p>
+        </header>
+
+        <!-- Controles -->
+        <div class="bg-slate-800 p-4 rounded-xl flex flex-wrap items-center gap-4 border border-slate-700 shadow-lg">
+            <button id="btnAddRow" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-semibold text-sm shadow-lg shadow-blue-500/20">
+                + Adicionar Linha
+            </button>
+            <button id="btnAddCol" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors font-semibold text-sm shadow-lg shadow-indigo-500/20">
+                + Adicionar Coluna
+            </button>
+            <button id="btnFillRandom" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-semibold text-sm shadow-lg shadow-emerald-500/20">
+                Aleatorizar Valores
+            </button>
+            
+            <div class="flex-grow"></div>
+            
+            <div class="flex items-center gap-3 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                <label for="speedSlider" class="text-sm font-medium text-slate-300">Animação:</label>
+                <input type="range" id="speedSlider" min="50" max="1000" value="400" dir="rtl" class="w-24 accent-blue-500">
+            </div>
+            
+            <button id="btnReset" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-semibold text-sm">
+                Reset
+            </button>
+        </div>
+
+        <!-- Grade Principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+            
+            <!-- Esquerda: Visualizador -->
+            <div class="flex flex-col gap-4">
+                <div id="matrix-container" class="border border-slate-700">
+                    <div id="matrix-surface">
+                        <!-- Nós e ligações gerados via JS -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-lg">
+                    <h3 class="text-white font-semibold mb-2 text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Status
+                    </h3>
+                    <div id="statusText" class="min-h-[3rem] font-mono text-sm text-emerald-400 bg-slate-900 p-3 rounded-lg border border-slate-700">
+                        Matriz 1x1 inicializada.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direita: Código C -->
+            <div class="bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-700 flex flex-col shadow-lg">
+                <div class="flex border-b border-slate-700 bg-slate-800/80 backdrop-blur-sm">
+                    <button class="tab-btn flex-1 py-3 text-sm font-medium text-blue-400 border-b-2 border-blue-500" data-target="code-row">adicionarLinha()</button>
+                    <button class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent" data-target="code-col">adicionarColuna()</button>
+                </div>
+                
+                <div class="p-4 overflow-auto flex-grow code-font text-sm text-slate-300 leading-relaxed">
+                    <!-- ADD ROW CODE -->
+                    <div id="code-row" class="code-panel">
+<div id="r-1" class="code-line"><span class="text-blue-400">void</span> <span class="text-yellow-200">adicionarLinha</span>() {</div>
+<div id="r-2" class="code-line">    Celula* atual = head;</div>
+<div id="r-3" class="code-line text-slate-500">    // Ir para a ultima linha</div>
+<div id="r-4" class="code-line">    <span class="text-pink-400">while</span> (atual-&gt;inf != <span class="text-purple-300">NULL</span>) atual = atual-&gt;inf;</div>
+<div class="code-line"></div>
+<div id="r-5" class="code-line text-slate-500">    // Criar cabeca da nova linha</div>
+<div id="r-6" class="code-line">    Celula* novaLinha = criarCelula(rand());</div>
+<div id="r-7" class="code-line">    atual-&gt;inf = novaLinha;</div>
+<div id="r-8" class="code-line">    novaLinha-&gt;sup = atual;</div>
+<div class="code-line"></div>
+<div id="r-9" class="code-line">    Celula* ant_nova = novaLinha;</div>
+<div id="r-10" class="code-line">    Celula* topo_atual = atual-&gt;dir;</div>
+<div class="code-line"></div>
+<div id="r-11" class="code-line text-slate-500">    // Percorrer colunas costurando ponteiros</div>
+<div id="r-12" class="code-line">    <span class="text-pink-400">while</span> (topo_atual != <span class="text-purple-300">NULL</span>) {</div>
+<div id="r-13" class="code-line">        Celula* nova = criarCelula(rand());</div>
+<div id="r-14" class="code-line text-slate-500">        // Costura horizontal (Esq/Dir)</div>
+<div id="r-15" class="code-line">        ant_nova-&gt;dir = nova;</div>
+<div id="r-16" class="code-line">        nova-&gt;esq = ant_nova;</div>
+<div id="r-17" class="code-line text-slate-500">        // Costura vertical (Sup/Inf)</div>
+<div id="r-18" class="code-line">        topo_atual-&gt;inf = nova;</div>
+<div id="r-19" class="code-line">        nova-&gt;sup = topo_atual;</div>
+<div class="code-line"></div>
+<div id="r-20" class="code-line">        ant_nova = nova;</div>
+<div id="r-21" class="code-line">        topo_atual = topo_atual-&gt;dir;</div>
+<div id="r-22" class="code-line">    }</div>
+<div id="r-23" class="code-line">}</div>
+                    </div>
+
+                    <!-- ADD COL CODE -->
+                    <div id="code-col" class="code-panel hidden">
+<div id="c-1" class="code-line"><span class="text-blue-400">void</span> <span class="text-yellow-200">adicionarColuna</span>() {</div>
+<div id="c-2" class="code-line">    Celula* atual = head;</div>
+<div id="c-3" class="code-line text-slate-500">    // Ir para a ultima coluna</div>
+<div id="c-4" class="code-line">    <span class="text-pink-400">while</span> (atual-&gt;dir != <span class="text-purple-300">NULL</span>) atual = atual-&gt;dir;</div>
+<div class="code-line"></div>
+<div id="c-5" class="code-line text-slate-500">    // Criar cabeca da nova coluna</div>
+<div id="c-6" class="code-line">    Celula* novaCol = criarCelula(rand());</div>
+<div id="c-7" class="code-line">    atual-&gt;dir = novaCol;</div>
+<div id="c-8" class="code-line">    novaCol-&gt;esq = atual;</div>
+<div class="code-line"></div>
+<div id="c-9" class="code-line">    Celula* ant_nova = novaCol;</div>
+<div id="c-10" class="code-line">    Celula* esq_atual = atual-&gt;inf;</div>
+<div class="code-line"></div>
+<div id="c-11" class="code-line text-slate-500">    // Percorrer linhas costurando ponteiros</div>
+<div id="c-12" class="code-line">    <span class="text-pink-400">while</span> (esq_atual != <span class="text-purple-300">NULL</span>) {</div>
+<div id="c-13" class="code-line">        Celula* nova = criarCelula(rand());</div>
+<div id="c-14" class="code-line text-slate-500">        // Costura vertical (Sup/Inf)</div>
+<div id="c-15" class="code-line">        ant_nova-&gt;inf = nova;</div>
+<div id="c-16" class="code-line">        nova-&gt;sup = ant_nova;</div>
+<div id="c-17" class="code-line text-slate-500">        // Costura horizontal (Esq/Dir)</div>
+<div id="c-18" class="code-line">        esq_atual-&gt;dir = nova;</div>
+<div id="c-19" class="code-line">        nova-&gt;esq = esq_atual;</div>
+<div class="code-line"></div>
+<div id="c-20" class="code-line">        ant_nova = nova;</div>
+<div id="c-21" class="code-line">        esq_atual = esq_atual-&gt;inf;</div>
+<div id="c-22" class="code-line">    }</div>
+<div id="c-23" class="code-line">}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for Layout
+        const NODE_SIZE = 50;
+        const GAP = 40;
+        const OFFSET = 20;
+
+        // State
+        let rows = 0;
+        let cols = 0;
+        let isAnimating = false;
+        let delay = 400;
+
+        const surface = document.getElementById('matrix-surface');
+        const statusText = document.getElementById('statusText');
+        const speedSlider = document.getElementById('speedSlider');
+
+        // Utils
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        function updateDelay() { delay = parseInt(speedSlider.value); }
+        speedSlider.addEventListener('input', updateDelay);
+
+        function setStatus(msg) { statusText.innerHTML = msg; }
+        
+        function highlightLine(id) {
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            if(id) {
+                const line = document.getElementById(id);
+                if(line) {
+                    line.classList.add('active');
+                    line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if(isAnimating) return;
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('text-blue-400', 'border-blue-500');
+                    b.classList.add('text-slate-400', 'border-transparent');
+                });
+                e.target.classList.add('text-blue-400', 'border-blue-500');
+                e.target.classList.remove('text-slate-400', 'border-transparent');
+                
+                document.querySelectorAll('.code-panel').forEach(p => p.classList.add('hidden'));
+                document.getElementById(e.target.dataset.target).classList.remove('hidden');
+            });
+        });
+
+        function showTab(targetId) {
+            document.querySelector(`[data-target="${targetId}"]`).click();
+        }
+
+        // DOM Manipulators
+        function createNodeDOM(r, c, val) {
+            const div = document.createElement('div');
+            div.id = `n_${r}_${c}`;
+            div.className = 'm-node text-white';
+            div.innerText = val;
+            div.style.top = `${OFFSET + r * (NODE_SIZE + GAP)}px`;
+            div.style.left = `${OFFSET + c * (NODE_SIZE + GAP)}px`;
+            surface.appendChild(div);
+            return div;
+        }
+
+        function createLinkDOM(r1, c1, r2, c2, type) { // type: 'h' or 'v'
+            const link = document.createElement('div');
+            link.id = `l_${r1}_${c1}_${r2}_${c2}`;
+            
+            if(type === 'h') {
+                link.className = 'h-link';
+                link.style.width = '0px'; // Start empty for animation
+                link.style.top = `${OFFSET + r1 * (NODE_SIZE + GAP) + NODE_SIZE/2}px`;
+                link.style.left = `${OFFSET + c1 * (NODE_SIZE + GAP) + NODE_SIZE}px`;
+                
+                // Animate to full width
+                setTimeout(() => { link.style.width = `${GAP}px`; }, 50);
+            } else {
+                link.className = 'v-link';
+                link.style.height = '0px';
+                link.style.left = `${OFFSET + c1 * (NODE_SIZE + GAP) + NODE_SIZE/2}px`;
+                link.style.top = `${OFFSET + r1 * (NODE_SIZE + GAP) + NODE_SIZE}px`;
+                
+                setTimeout(() => { link.style.height = `${GAP}px`; }, 50);
+            }
+            surface.appendChild(link);
+            return link;
+        }
+
+        function highlightNode(r, c) {
+            const el = document.getElementById(`n_${r}_${c}`);
+            if(el) el.classList.add('highlight');
+        }
+
+        function unhighlightAll() {
+            document.querySelectorAll('.m-node').forEach(el => el.classList.remove('highlight'));
+            document.querySelectorAll('.h-link, .v-link').forEach(el => el.classList.remove('link-active'));
+        }
+
+        function flashLink(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.classList.add('link-active');
+                setTimeout(() => el.classList.remove('link-active'), delay);
+            }
+        }
+
+        // Logic
+        function initMatrix() {
+            surface.innerHTML = '';
+            rows = 1;
+            cols = 1;
+            createNodeDOM(0, 0, Math.floor(Math.random() * 90) + 10);
+            setStatus(`Matriz Inicializada: ${rows}x${cols}`);
+        }
+
+        async function addRowAnim() {
+            if (isAnimating) return;
+            isAnimating = true;
+            showTab('code-row');
+            unhighlightAll();
+            
+            const newR = rows;
+            setStatus("Iniciando inserção de nova Linha.");
+            highlightLine('r-1'); await sleep(delay);
+            
+            // Navigate to last row (visually skip to end)
+            highlightLine('r-2'); await sleep(delay/2);
+            highlightLine('r-4'); await sleep(delay);
+            highlightNode(newR - 1, 0);
+            
+            // Create Head of new row
+            highlightLine('r-6');
+            setStatus("Criando a primeira célula (cabeça) da nova linha.");
+            createNodeDOM(newR, 0, Math.floor(Math.random() * 90) + 10);
+            highlightNode(newR, 0);
+            await sleep(delay);
+
+            // Connect Vertically to previous row head
+            highlightLine('r-7'); 
+            highlightLine('r-8');
+            setStatus("Ligando ponteiros Sup/Inf.");
+            createLinkDOM(newR - 1, 0, newR, 0, 'v');
+            flashLink(`l_${newR-1}_0_${newR}_0`);
+            await sleep(delay);
+
+            highlightLine('r-11');
+            // Loop for remaining columns
+            for(let c = 1; c < cols; c++) {
+                highlightLine('r-12'); await sleep(delay/2);
+                
+                setStatus(`A criar célula da coluna [${c}].`);
+                highlightLine('r-13');
+                createNodeDOM(newR, c, Math.floor(Math.random() * 90) + 10);
+                highlightNode(newR, c);
+                await sleep(delay);
+
+                // Horizontal linking
+                setStatus(`A ligar célula nova à anterior (Esq/Dir).`);
+                highlightLine('r-15'); highlightLine('r-16');
+                createLinkDOM(newR, c - 1, newR, c, 'h');
+                flashLink(`l_${newR}_${c-1}_${newR}_${c}`);
+                await sleep(delay);
+
+                // Vertical linking
+                setStatus(`A ligar célula nova à célula superior (Sup/Inf).`);
+                highlightLine('r-18'); highlightLine('r-19');
+                createLinkDOM(newR - 1, c, newR, c, 'v');
+                flashLink(`l_${newR-1}_${c}_${newR}_${c}`);
+                await sleep(delay);
+                
+                highlightNode(newR, c-1); // visually keep active row bright
+            }
+
+            rows++;
+            highlightLine('r-23');
+            setStatus(`Linha adicionada com sucesso. Novo tamanho: ${rows}x${cols}.`);
+            await sleep(delay);
+            
+            unhighlightAll();
+            highlightLine('');
+            isAnimating = false;
+        }
+
+        async function addColAnim() {
+            if (isAnimating) return;
+            isAnimating = true;
+            showTab('code-col');
+            unhighlightAll();
+
+            const newC = cols;
+            setStatus("Iniciando inserção de nova Coluna.");
+            highlightLine('c-1'); await sleep(delay);
+
+            // Navigate to last column
+            highlightLine('c-2'); await sleep(delay/2);
+            highlightLine('c-4'); await sleep(delay);
+            highlightNode(0, newC - 1);
+
+            // Create Head of new column
+            highlightLine('c-6');
+            setStatus("Criando a primeira célula (cabeça) da nova coluna.");
+            createNodeDOM(0, newC, Math.floor(Math.random() * 90) + 10);
+            highlightNode(0, newC);
+            await sleep(delay);
+
+            // Connect Horizontally
+            highlightLine('c-7'); highlightLine('c-8');
+            setStatus("Ligando ponteiros Esq/Dir.");
+            createLinkDOM(0, newC - 1, 0, newC, 'h');
+            flashLink(`l_0_${newC-1}_0_${newC}`);
+            await sleep(delay);
+
+            highlightLine('c-11');
+            // Loop for remaining rows
+            for(let r = 1; r < rows; r++) {
+                highlightLine('c-12'); await sleep(delay/2);
+
+                setStatus(`A criar célula da linha [${r}].`);
+                highlightLine('c-13');
+                createNodeDOM(r, newC, Math.floor(Math.random() * 90) + 10);
+                highlightNode(r, newC);
+                await sleep(delay);
+
+                // Vertical linking
+                setStatus(`A ligar célula nova à anterior (Sup/Inf).`);
+                highlightLine('c-15'); highlightLine('c-16');
+                createLinkDOM(r - 1, newC, r, newC, 'v');
+                flashLink(`l_${r-1}_${newC}_${r}_${newC}`);
+                await sleep(delay);
+
+                // Horizontal linking
+                setStatus(`A ligar célula nova à célula da esquerda (Esq/Dir).`);
+                highlightLine('c-18'); highlightLine('c-19');
+                createLinkDOM(r, newC - 1, r, newC, 'h');
+                flashLink(`l_${r}_${newC-1}_${r}_${newC}`);
+                await sleep(delay);
+            }
+
+            cols++;
+            highlightLine('c-23');
+            setStatus(`Coluna adicionada com sucesso. Novo tamanho: ${rows}x${cols}.`);
+            await sleep(delay);
+
+            unhighlightAll();
+            highlightLine('');
+            isAnimating = false;
+        }
+
+        function fillRandom() {
+            if(isAnimating) return;
+            document.querySelectorAll('.m-node').forEach(node => {
+                // Add tiny animation class manually
+                node.style.transform = 'scale(1.2)';
+                node.innerText = Math.floor(Math.random() * 90) + 10;
+                setTimeout(() => node.style.transform = 'scale(1)', 200);
+            });
+            setStatus("Valores aleatorizados.");
+        }
+
+        // Binds
+        document.getElementById('btnAddRow').addEventListener('click', addRowAnim);
+        document.getElementById('btnAddCol').addEventListener('click', addColAnim);
+        document.getElementById('btnFillRandom').addEventListener('click', fillRandom);
+        document.getElementById('btnReset').addEventListener('click', () => {
+            if(!isAnimating) initMatrix();
+        });
+
+        // Start
+        window.onload = initMatrix;
+
+    </script>
+</body>
+</html>
